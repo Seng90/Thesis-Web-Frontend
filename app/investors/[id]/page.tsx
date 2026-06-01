@@ -1,0 +1,150 @@
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { fetchInvestor } from '@/lib/api'
+import { getInitials, getNameColor, formatDate, formatCurrency } from '@/lib/utils'
+import Badge from '@/components/ui/Badge'
+import CompanyCard from '@/components/cards/CompanyCard'
+import { Globe, Mail, ChevronLeft, Briefcase, ExternalLink } from 'lucide-react'
+import type { Metadata } from 'next'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const investor = await fetchInvestor(id)
+  
+  if (!investor) {
+    return { title: 'Investor Not Found' }
+  }
+  
+  return {
+    title: `${investor.name} | Investor Profile`,
+  }
+}
+
+export default async function InvestorDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const investor = await fetchInvestor(id)
+
+  if (!investor) {
+    notFound()
+  }
+
+  // Get unique portfolio companies from investments
+  const portfolioCompaniesMap = new Map()
+  investor.investments.forEach(inv => {
+    if (inv.company && !portfolioCompaniesMap.has(inv.company.id)) {
+      portfolioCompaniesMap.set(inv.company.id, inv.company)
+    }
+  })
+  const portfolioCompanies = Array.from(portfolioCompaniesMap.values())
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      {/* Back Link */}
+      <Link 
+        href="/investors" 
+        className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 mb-8 transition-colors"
+      >
+        <ChevronLeft className="w-4 h-4 mr-1" />
+        Back to Investors
+      </Link>
+
+      {/* Hero Header */}
+      <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 mb-8">
+        <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
+          {/* Avatar */}
+          <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br ${getNameColor(investor.name)} flex items-center justify-center shrink-0 shadow-md`}>
+            <span className="text-white font-bold text-3xl sm:text-4xl">{getInitials(investor.name)}</span>
+          </div>
+          
+          {/* Main Info */}
+          <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">{investor.name}</h1>
+              <Badge variant="type" value={investor.type} />
+            </div>
+            
+            {/* Quick Links Row */}
+            <div className="flex flex-wrap gap-6 text-sm font-medium text-slate-600">
+              {investor.websiteUrl && (
+                <a href={investor.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
+                  <Globe className="w-4 h-4 text-slate-400" />
+                  Website
+                  <ExternalLink className="w-3 h-3 ml-0.5" />
+                </a>
+              )}
+              {investor.contactInfo && (
+                <a href={investor.contactInfo.includes('@') ? `mailto:${investor.contactInfo}` : '#'} className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
+                  <Mail className="w-4 h-4 text-slate-400" />
+                  {investor.contactInfo}
+                </a>
+              )}
+              <div className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">
+                <Briefcase className="w-4 h-4" />
+                {portfolioCompanies.length} Portfolio Companies
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="space-y-12">
+        
+        {/* Portfolio Section */}
+        {portfolioCompanies.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Portfolio</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {portfolioCompanies.map(company => (
+                <CompanyCard key={company.id} company={company} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Investment History Section */}
+        <section className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 overflow-hidden">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">Investment History</h2>
+          
+          {investor.investments.length > 0 ? (
+            <div className="overflow-x-auto -mx-8 px-8">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-500 uppercase bg-slate-50/50 rounded-xl">
+                  <tr>
+                    <th className="px-4 py-3 font-medium rounded-l-xl">Date</th>
+                    <th className="px-4 py-3 font-medium">Company</th>
+                    <th className="px-4 py-3 font-medium">Round</th>
+                    <th className="px-4 py-3 font-medium rounded-r-xl">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {investor.investments.map(inv => (
+                    <tr key={inv.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors">
+                      <td className="px-4 py-4 text-slate-500">{formatDate(inv.investDate)}</td>
+                      <td className="px-4 py-4 text-indigo-600 font-medium hover:underline">
+                        <Link href={`/companies/${inv.companyId}`}>{inv.company?.name ?? 'Unknown'}</Link>
+                      </td>
+                      <td className="px-4 py-4 text-slate-700">{inv.round?.roundName ?? '—'}</td>
+                      <td className="px-4 py-4 font-semibold text-slate-900">{formatCurrency(inv.amount, inv.currency)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-slate-500 text-sm">No public investment records available.</p>
+          )}
+        </section>
+
+      </div>
+    </div>
+  )
+}
