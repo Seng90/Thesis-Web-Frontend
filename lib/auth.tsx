@@ -24,6 +24,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   signup: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  loginWithToken: (token: string) => { success: boolean; error?: string }
   logout: () => void
 }
 
@@ -131,13 +132,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [login])
 
+  // --- Login with Token (Google Auth) ---
+  const loginWithToken = useCallback((newToken: string) => {
+    try {
+      // Decode JWT payload (base64)
+      const base64Url = newToken.split('.')[1]
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      )
+      const payload = JSON.parse(jsonPayload)
+
+      const authUser: AuthUser = {
+        id: payload.sub ?? payload.id ?? '',
+        username: payload.username ?? '',
+        email: payload.email ?? '',
+        role: payload.role ?? 'member',
+      }
+
+      persistSession(newToken, authUser)
+      return { success: true }
+    } catch {
+      return { success: false, error: 'Invalid token received.' }
+    }
+  }, [])
+
   // --- Logout ---
   const logout = useCallback(() => {
     clearSession()
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, signup, loginWithToken, logout }}>
       {children}
     </AuthContext.Provider>
   )
