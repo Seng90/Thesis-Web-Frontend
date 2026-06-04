@@ -4,6 +4,10 @@ import { useState, useEffect, useMemo } from 'react'
 import { fetchCompany } from '@/lib/api'
 import type { Company, CompanyWithRelations } from '@/lib/types'
 import { Building2, Banknote, Users, Calendar, MapPin, ArrowRightLeft, LayoutGrid } from 'lucide-react'
+import { 
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+} from 'recharts'
 
 interface CompareToolProps {
   companies: Company[]
@@ -27,6 +31,13 @@ const getMockEmployees = (company: Company) => {
   if (seed > 50) return '500+'
   if (seed > 20) return '100+'
   return '10-50'
+}
+const getMockEmployeesNum = (company: Company) => {
+  const seed = company.name.length + company.viewCount
+  if (seed > 100) return 2500
+  if (seed > 50) return 500
+  if (seed > 20) return 100
+  return 25
 }
 
 // Derived stage based on funding
@@ -80,12 +91,14 @@ export default function CompareTool({ companies }: CompareToolProps) {
     return {
       totalFunding,
       employees: getMockEmployees(companyAData),
+      employeesNum: getMockEmployeesNum(companyAData),
       founded: companyAData.foundedDate ? new Date(companyAData.foundedDate).getFullYear() : 'N/A',
       stage: getDerivedStage(totalFunding),
       sector: companyAData.industry || 'N/A',
       fundingRounds: uniqueRounds,
       teamSize: companyAData.founders?.length || 0,
-      location: companyAData.location || 'N/A'
+      location: companyAData.location || 'N/A',
+      viewCount: companyAData.viewCount || 0
     }
   }, [companyAData])
 
@@ -97,14 +110,71 @@ export default function CompareTool({ companies }: CompareToolProps) {
     return {
       totalFunding,
       employees: getMockEmployees(companyBData),
+      employeesNum: getMockEmployeesNum(companyBData),
       founded: companyBData.foundedDate ? new Date(companyBData.foundedDate).getFullYear() : 'N/A',
       stage: getDerivedStage(totalFunding),
       sector: companyBData.industry || 'N/A',
       fundingRounds: uniqueRounds,
       teamSize: companyBData.founders?.length || 0,
-      location: companyBData.location || 'N/A'
+      location: companyBData.location || 'N/A',
+      viewCount: companyBData.viewCount || 0
     }
   }, [companyBData])
+
+  // Process Data for Radar Chart (Overall Comparison)
+  const radarData = useMemo(() => {
+    if (!metricsA || !metricsB || !companyAData || !companyBData) return []
+    
+    const normalize = (valA: number, valB: number) => {
+      const max = Math.max(valA, valB, 1) // Prevent div by 0
+      return { normA: (valA / max) * 100, normB: (valB / max) * 100 }
+    }
+
+    const funding = normalize(metricsA.totalFunding, metricsB.totalFunding)
+    const team = normalize(metricsA.teamSize, metricsB.teamSize)
+    const rounds = normalize(metricsA.fundingRounds, metricsB.fundingRounds)
+    const employees = normalize(metricsA.employeesNum, metricsB.employeesNum)
+    const popularity = normalize(metricsA.viewCount, metricsB.viewCount)
+
+    return [
+      { subject: 'Funding', [companyAData.name]: funding.normA, [companyBData.name]: funding.normB, fullMark: 100 },
+      { subject: 'Employees', [companyAData.name]: employees.normA, [companyBData.name]: employees.normB, fullMark: 100 },
+      { subject: 'Rounds', [companyAData.name]: rounds.normA, [companyBData.name]: rounds.normB, fullMark: 100 },
+      { subject: 'Team Size', [companyAData.name]: team.normA, [companyBData.name]: team.normB, fullMark: 100 },
+      { subject: 'Popularity', [companyAData.name]: popularity.normA, [companyBData.name]: popularity.normB, fullMark: 100 },
+    ]
+  }, [metricsA, metricsB, companyAData, companyBData])
+
+  // Process Data for Funding by Year
+  const fundingByYearData = useMemo(() => {
+    if (!companyAData || !companyBData) return []
+    const yearsMap = new Map<number, { year: string, [key: string]: number | string }>()
+
+    const processInvestments = (investments: typeof companyAData.investments, companyName: string) => {
+      investments.forEach(inv => {
+        if (!inv.investDate) return
+        const year = new Date(inv.investDate).getFullYear()
+        if (!yearsMap.has(year)) {
+          yearsMap.set(year, { year: year.toString(), [companyAData.name]: 0, [companyBData.name]: 0 })
+        }
+        const data = yearsMap.get(year)!
+        data[companyName] = ((data[companyName] as number) || 0) + (inv.currency === 'USD' ? inv.amount : 0)
+      })
+    }
+
+    processInvestments(companyAData.investments, companyAData.name)
+    processInvestments(companyBData.investments, companyBData.name)
+
+    return Array.from(yearsMap.values())
+      .sort((a, b) => parseInt(a.year) - parseInt(b.year))
+      .map(item => {
+        // Convert to Millions
+        const formatted = { ...item }
+        formatted[companyAData.name] = Number(((item[companyAData.name] as number) / 1_000_000).toFixed(2))
+        formatted[companyBData.name] = Number(((item[companyBData.name] as number) / 1_000_000).toFixed(2))
+        return formatted
+      })
+  }, [companyAData, companyBData])
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-200 dark:border-slate-800 overflow-hidden animate-fade-in">
@@ -193,7 +263,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
         </div>
       </div>
 
-      {/* VS Badge (Absolute centered between selectors, hidden on mobile) */}
+      {/* VS Badge */}
       <div className="hidden md:flex absolute top-[120px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full items-center justify-center font-bold text-sm shadow-xl z-10 border-4 border-white dark:border-slate-900">
         VS
       </div>
@@ -211,31 +281,75 @@ export default function CompareTool({ companies }: CompareToolProps) {
         </div>
       )}
 
-      {/* Comparison Data Rows */}
+      {/* Comparison Data Rows & Charts */}
       {companyAData && companyBData && metricsA && metricsB && (
-        <div className="divide-y divide-slate-100 dark:divide-slate-800">
-          
-          <div className="grid grid-cols-3 bg-slate-50/50 dark:bg-slate-900/20 py-4 px-6 md:px-8">
-            <div className="col-span-3 text-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Key Metrics</div>
+        <>
+          {/* Metrics Table */}
+          <div className="divide-y divide-slate-100 dark:divide-slate-800 border-b border-slate-200 dark:border-slate-800">
+            <div className="grid grid-cols-3 bg-slate-50/50 dark:bg-slate-900/20 py-4 px-6 md:px-8">
+              <div className="col-span-3 text-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Key Metrics</div>
+            </div>
+            <ComparisonRow label="Total Funding" icon={<Banknote className="w-4 h-4" />} valA={formatCurrency(metricsA.totalFunding)} valB={formatCurrency(metricsB.totalFunding)} highlightMax={metricsA.totalFunding !== metricsB.totalFunding} isNumber valANum={metricsA.totalFunding} valBNum={metricsB.totalFunding} />
+            <ComparisonRow label="Employees" icon={<Users className="w-4 h-4" />} valA={metricsA.employees} valB={metricsB.employees} highlightMax={metricsA.employeesNum !== metricsB.employeesNum} isNumber valANum={metricsA.employeesNum} valBNum={metricsB.employeesNum} />
+            <ComparisonRow label="Founded" icon={<Calendar className="w-4 h-4" />} valA={metricsA.founded.toString()} valB={metricsB.founded.toString()} />
+            <ComparisonRow label="Stage" icon={<ArrowRightLeft className="w-4 h-4" />} valA={metricsA.stage} valB={metricsB.stage} />
+            <ComparisonRow label="Sector" icon={<LayoutGrid className="w-4 h-4" />} valA={metricsA.sector} valB={metricsB.sector} />
+            <ComparisonRow label="Funding Rounds" icon={<Banknote className="w-4 h-4" />} valA={metricsA.fundingRounds.toString()} valB={metricsB.fundingRounds.toString()} highlightMax={metricsA.fundingRounds !== metricsB.fundingRounds} isNumber valANum={metricsA.fundingRounds} valBNum={metricsB.fundingRounds} />
+            <ComparisonRow label="Team Size" icon={<Users className="w-4 h-4" />} valA={metricsA.teamSize.toString()} valB={metricsB.teamSize.toString()} highlightMax={metricsA.teamSize !== metricsB.teamSize} isNumber valANum={metricsA.teamSize} valBNum={metricsB.teamSize} />
           </div>
 
-          <ComparisonRow label="Total Funding" icon={<Banknote className="w-4 h-4" />} valA={formatCurrency(metricsA.totalFunding)} valB={formatCurrency(metricsB.totalFunding)} highlightMax={metricsA.totalFunding !== metricsB.totalFunding} isNumber valANum={metricsA.totalFunding} valBNum={metricsB.totalFunding} />
-          
-          <ComparisonRow label="Employees" icon={<Users className="w-4 h-4" />} valA={metricsA.employees} valB={metricsB.employees} />
-          
-          <ComparisonRow label="Founded" icon={<Calendar className="w-4 h-4" />} valA={metricsA.founded.toString()} valB={metricsB.founded.toString()} />
-          
-          <ComparisonRow label="Stage" icon={<ArrowRightLeft className="w-4 h-4" />} valA={metricsA.stage} valB={metricsB.stage} />
-          
-          <ComparisonRow label="Sector" icon={<LayoutGrid className="w-4 h-4" />} valA={metricsA.sector} valB={metricsB.sector} />
-          
-          <ComparisonRow label="Funding Rounds" icon={<Banknote className="w-4 h-4" />} valA={metricsA.fundingRounds.toString()} valB={metricsB.fundingRounds.toString()} highlightMax={metricsA.fundingRounds !== metricsB.fundingRounds} isNumber valANum={metricsA.fundingRounds} valBNum={metricsB.fundingRounds} />
-          
-          <ComparisonRow label="Team Size" icon={<Users className="w-4 h-4" />} valA={metricsA.teamSize.toString()} valB={metricsB.teamSize.toString()} highlightMax={metricsA.teamSize !== metricsB.teamSize} isNumber valANum={metricsA.teamSize} valBNum={metricsB.teamSize} />
+          {/* Charts Section */}
+          <div className="bg-slate-50/50 dark:bg-slate-900/30 p-6 md:p-10 space-y-12">
+            
+            {/* Overall Comparison (Radar) */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+              <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Overall Comparison (Relative Score)</h4>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                    <PolarGrid stroke="#cbd5e1" strokeDasharray="3 3" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <RechartsTooltip wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg" />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Radar name={companyAData.name} dataKey={companyAData.name} stroke="#6366f1" fill="#6366f1" fillOpacity={0.5} />
+                    <Radar name={companyBData.name} dataKey={companyBData.name} stroke="#10b981" fill="#10b981" fillOpacity={0.5} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-        </div>
+            {/* Funding by Year (Bar Chart) */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+              <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Funding by Year ($M)</h4>
+              {fundingByYearData.length > 0 ? (
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={fundingByYearData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} tickFormatter={(val) => `$${val}M`} />
+                      <RechartsTooltip 
+                        cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
+                        wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg"
+                        formatter={(value: any) => [`$${value}M`, undefined]}
+                      />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey={companyAData.name} fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                      <Bar dataKey={companyBData.name} fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-400 dark:text-slate-500">
+                  No funding data available to plot.
+                </div>
+              )}
+            </div>
+
+          </div>
+        </>
       )}
-
     </div>
   )
 }

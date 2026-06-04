@@ -9,8 +9,8 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/compare', label: 'Compare Companies' },
   { href: '/companies', label: 'Companies' },
-  { href: '/compare', label: 'Compare' },
   { href: '/investors', label: 'Investors' },
   { href: '/pricing', label: 'Pricing' },
 ]
