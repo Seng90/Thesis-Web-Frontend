@@ -1,25 +1,5 @@
 import type { Package } from '@/lib/types'
-
-const pkgList: Package[] = [
-  {
-    id: 'pkg_1',
-    name: 'Basic',
-    price: 0,
-    features: 'Basic profile access, standard search, limited filtering.',
-    purchaseCount: 150,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'pkg_2',
-    name: 'Premium',
-    price: 49,
-    features: 'Full profile access, advanced filtering, contact information, export data to CSV.',
-    purchaseCount: 45,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-]
+import { fetchPackages } from '@/lib/api'
 import PackageCard from '@/components/cards/PackageCard'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -30,6 +10,16 @@ export const metadata: Metadata = {
 }
 
 export default async function PricingPage() {
+  let pkgList: Package[] = []
+  
+  try {
+    pkgList = await fetchPackages()
+  } catch (error) {
+    console.error('Failed to fetch packages:', error)
+  }
+
+  // Sort packages by price
+  pkgList.sort((a, b) => a.price - b.price)
   return (
     <div className="animate-fade-in">
       {/* Header Section */}

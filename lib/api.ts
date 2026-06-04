@@ -14,6 +14,7 @@ import type {
   InvestorWithPortfolio,
   FounderWithRole,
   InvestmentWithDetails,
+  Package,
 } from './types'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
@@ -189,10 +190,26 @@ export async function fetchInvestor(id: string): Promise<InvestorWithPortfolio |
 
 // --- Investments ---
 
-export async function fetchInvestments(): Promise<Investment[]> {
-  const data = await apiFetch<unknown[]>('/user/investments')
-  if (!data || !Array.isArray(data)) return []
+export async function fetchInvestments(): Promise<InvestmentWithDetails[]> {
+  const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
+  if (!res.ok) throw new Error('Failed to fetch investments')
+  const data = await res.json()
   return data.map(mapInvestment)
+}
+
+export async function fetchPackages(): Promise<Package[]> {
+  const res = await fetch(`${API_BASE}/user/packages`, { next: { revalidate: 60 } })
+  if (!res.ok) throw new Error('Failed to fetch packages')
+  const data = await res.json()
+  return data.map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    features: p.features,
+    purchaseCount: p.purchaseCount ?? p.purchase_count ?? 0,
+    createdAt: p.createdAt ?? p.created_at,
+    updatedAt: p.updatedAt ?? p.updated_at,
+  }))
 }
 
 // --- Founders ---
