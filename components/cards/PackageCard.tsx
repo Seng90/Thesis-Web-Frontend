@@ -9,7 +9,19 @@ interface PackageCardProps {
 }
 
 export default function PackageCard({ pkg, isPopular = false }: PackageCardProps) {
-  const features = pkg.features.split('|').map((f) => f.trim()).filter(Boolean)
+  let features: string[] = []
+  if (Array.isArray(pkg.features)) {
+    features = pkg.features
+  } else if (typeof pkg.features === 'string') {
+    try {
+      const parsed = JSON.parse(pkg.features)
+      if (Array.isArray(parsed)) features = parsed
+      else features = [pkg.features]
+    } catch {
+      // Split by newline, pipe, or comma
+      features = pkg.features.split(/[\n|,]+/).map((f) => f.trim()).filter(Boolean)
+    }
+  }
 
   return (
     <div

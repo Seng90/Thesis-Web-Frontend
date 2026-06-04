@@ -42,12 +42,12 @@ export default async function PricingPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         {/* Pricing Cards */}
-        <div className="flex flex-col md:flex-row justify-center items-stretch gap-8 max-w-5xl mx-auto -mt-32 relative z-20 mb-24">
-          {pkgList.map(pkg => (
-            <div key={pkg.id} className="flex-1 max-w-md w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto -mt-32 relative z-20 mb-24">
+          {pkgList.map((pkg, idx) => (
+            <div key={pkg.id} className="w-full">
               <PackageCard 
                 pkg={pkg} 
-                isPopular={pkg.name === 'Premium'} 
+                isPopular={pkg.name.toLowerCase() === 'premium' || pkg.name.toLowerCase() === 'pro' || idx === 1} 
               />
             </div>
           ))}
