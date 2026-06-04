@@ -24,30 +24,6 @@ const formatCurrency = (amount: number, currency = 'USD') => {
   return `$${amount}`
 }
 
-// Pseudo-random generator for missing data (Employees) based on company name length + view count
-const getMockEmployees = (company: Company) => {
-  const seed = company.name.length + company.viewCount
-  if (seed > 100) return '2,500+'
-  if (seed > 50) return '500+'
-  if (seed > 20) return '100+'
-  return '10-50'
-}
-const getMockEmployeesNum = (company: Company) => {
-  const seed = company.name.length + company.viewCount
-  if (seed > 100) return 2500
-  if (seed > 50) return 500
-  if (seed > 20) return 100
-  return 25
-}
-
-// Derived stage based on funding
-const getDerivedStage = (totalFunding: number) => {
-  if (totalFunding >= 10_000_000) return 'Established'
-  if (totalFunding >= 1_000_000) return 'Series A/B'
-  if (totalFunding > 0) return 'Seed'
-  return 'Early Stage'
-}
-
 export default function CompareTool({ companies }: CompareToolProps) {
   const [companyAId, setCompanyAId] = useState<string>('')
   const [companyBId, setCompanyBId] = useState<string>('')
@@ -88,12 +64,17 @@ export default function CompareTool({ companies }: CompareToolProps) {
     if (!companyAData) return null
     const totalFunding = companyAData.investments.reduce((sum, inv) => sum + (inv.currency === 'USD' ? inv.amount : 0), 0)
     const uniqueRounds = new Set(companyAData.investments.map(i => i.roundId)).size
+    
+    let stage = 'Bootstrapped'
+    if (companyAData.investments.length > 0) {
+      const latest = [...companyAData.investments].sort((a, b) => new Date(b.investDate).getTime() - new Date(a.investDate).getTime())[0]
+      stage = latest.round?.roundName || 'Undisclosed'
+    }
+
     return {
       totalFunding,
-      employees: getMockEmployees(companyAData),
-      employeesNum: getMockEmployeesNum(companyAData),
       founded: companyAData.foundedDate ? new Date(companyAData.foundedDate).getFullYear() : 'N/A',
-      stage: getDerivedStage(totalFunding),
+      stage,
       sector: companyAData.industry || 'N/A',
       fundingRounds: uniqueRounds,
       teamSize: companyAData.founders?.length || 0,
@@ -107,12 +88,17 @@ export default function CompareTool({ companies }: CompareToolProps) {
     if (!companyBData) return null
     const totalFunding = companyBData.investments.reduce((sum, inv) => sum + (inv.currency === 'USD' ? inv.amount : 0), 0)
     const uniqueRounds = new Set(companyBData.investments.map(i => i.roundId)).size
+
+    let stage = 'Bootstrapped'
+    if (companyBData.investments.length > 0) {
+      const latest = [...companyBData.investments].sort((a, b) => new Date(b.investDate).getTime() - new Date(a.investDate).getTime())[0]
+      stage = latest.round?.roundName || 'Undisclosed'
+    }
+
     return {
       totalFunding,
-      employees: getMockEmployees(companyBData),
-      employeesNum: getMockEmployeesNum(companyBData),
       founded: companyBData.foundedDate ? new Date(companyBData.foundedDate).getFullYear() : 'N/A',
-      stage: getDerivedStage(totalFunding),
+      stage,
       sector: companyBData.industry || 'N/A',
       fundingRounds: uniqueRounds,
       teamSize: companyBData.founders?.length || 0,
@@ -133,12 +119,10 @@ export default function CompareTool({ companies }: CompareToolProps) {
     const funding = normalize(metricsA.totalFunding, metricsB.totalFunding)
     const team = normalize(metricsA.teamSize, metricsB.teamSize)
     const rounds = normalize(metricsA.fundingRounds, metricsB.fundingRounds)
-    const employees = normalize(metricsA.employeesNum, metricsB.employeesNum)
     const popularity = normalize(metricsA.viewCount, metricsB.viewCount)
 
     return [
       { subject: 'Funding', [companyAData.name]: funding.normA, [companyBData.name]: funding.normB, fullMark: 100 },
-      { subject: 'Employees', [companyAData.name]: employees.normA, [companyBData.name]: employees.normB, fullMark: 100 },
       { subject: 'Rounds', [companyAData.name]: rounds.normA, [companyBData.name]: rounds.normB, fullMark: 100 },
       { subject: 'Team Size', [companyAData.name]: team.normA, [companyBData.name]: team.normB, fullMark: 100 },
       { subject: 'Popularity', [companyAData.name]: popularity.normA, [companyBData.name]: popularity.normB, fullMark: 100 },
@@ -290,7 +274,6 @@ export default function CompareTool({ companies }: CompareToolProps) {
               <div className="col-span-3 text-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Key Metrics</div>
             </div>
             <ComparisonRow label="Total Funding" icon={<Banknote className="w-4 h-4" />} valA={formatCurrency(metricsA.totalFunding)} valB={formatCurrency(metricsB.totalFunding)} highlightMax={metricsA.totalFunding !== metricsB.totalFunding} isNumber valANum={metricsA.totalFunding} valBNum={metricsB.totalFunding} />
-            <ComparisonRow label="Employees" icon={<Users className="w-4 h-4" />} valA={metricsA.employees} valB={metricsB.employees} highlightMax={metricsA.employeesNum !== metricsB.employeesNum} isNumber valANum={metricsA.employeesNum} valBNum={metricsB.employeesNum} />
             <ComparisonRow label="Founded" icon={<Calendar className="w-4 h-4" />} valA={metricsA.founded.toString()} valB={metricsB.founded.toString()} />
             <ComparisonRow label="Stage" icon={<ArrowRightLeft className="w-4 h-4" />} valA={metricsA.stage} valB={metricsB.stage} />
             <ComparisonRow label="Sector" icon={<LayoutGrid className="w-4 h-4" />} valA={metricsA.sector} valB={metricsB.sector} />
