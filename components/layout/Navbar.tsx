@@ -8,10 +8,11 @@ import { useAuth } from '@/lib/auth'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 const navLinks = [
-  { href: '/', label: 'Home' },
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/companies', label: 'Companies' },
   { href: '/investors', label: 'Investors' },
   { href: '/compare', label: 'Compare Companies' },
+  { href: '/raises', label: 'Raises' },
   { href: '/pricing', label: 'Pricing' },
 ]
 
