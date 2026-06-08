@@ -69,6 +69,19 @@ export interface Package {
   updatedAt: string
 }
 
+export interface FundraisingPost {
+  slug: string
+  title: string
+  excerpt: string
+  companyName: string
+  roundType: string
+  targetAmountUsd: number
+  deadline: string
+  coverUrl: string | null
+  tags: string[]
+  publishedAt: string
+}
+
 export interface Member {
   id: string
   username: string

@@ -15,6 +15,7 @@ import type {
   FounderWithRole,
   InvestmentWithDetails,
   Package,
+  FundraisingPost,
 } from './types'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
@@ -209,6 +210,24 @@ export async function fetchPackages(): Promise<Package[]> {
     purchaseCount: p.purchaseCount ?? p.purchase_count ?? 0,
     createdAt: p.createdAt ?? p.created_at,
     updatedAt: p.updatedAt ?? p.updated_at,
+  }))
+}
+
+export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts`, { next: { revalidate: 30 } })
+  if (!res.ok) throw new Error('Failed to fetch fundraising posts')
+  const data = await res.json()
+  return data.map((p: any) => ({
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    companyName: p.companyName ?? p.company_name,
+    roundType: p.roundType ?? p.round_type,
+    targetAmountUsd: p.targetAmountUsd ?? p.target_amount_usd,
+    deadline: p.deadline,
+    coverUrl: p.coverUrl ?? p.cover_url,
+    tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags) : []),
+    publishedAt: p.publishedAt ?? p.published_at,
   }))
 }
 

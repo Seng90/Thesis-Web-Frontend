@@ -1,9 +1,9 @@
-import type { PostCardData } from '@/lib/dashboard-mock'
+import type { FundraisingPost } from '@/lib/types'
 import { Calendar, Target, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function RaiseCard({ post }: { post: PostCardData }) {
+export default function RaiseCard({ post }: { post: FundraisingPost }) {
   const isExpired = new Date(post.deadline) < new Date()
 
   return (
@@ -11,9 +11,9 @@ export default function RaiseCard({ post }: { post: PostCardData }) {
       
       {/* Cover Image */}
       <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
-        {post.cover_url ? (
+        {post.coverUrl ? (
           <Image
-            src={post.cover_url}
+            src={post.coverUrl}
             alt={post.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -25,7 +25,7 @@ export default function RaiseCard({ post }: { post: PostCardData }) {
           </div>
         )}
         <div className="absolute left-4 top-4 rounded-full bg-white/90 dark:bg-slate-900/90 px-3 py-1 text-xs font-bold text-slate-900 dark:text-white backdrop-blur-sm shadow-sm">
-          {post.round_type}
+          {post.roundType}
         </div>
         {isExpired && (
           <div className="absolute right-4 top-4 rounded-full bg-red-500/90 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm shadow-sm">
@@ -38,11 +38,11 @@ export default function RaiseCard({ post }: { post: PostCardData }) {
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-            {post.company_name}
+            {post.companyName}
           </span>
           <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            {new Date(post.published_at).toLocaleDateString()}
+            {new Date(post.publishedAt).toLocaleDateString()}
           </span>
         </div>
 
@@ -75,7 +75,7 @@ export default function RaiseCard({ post }: { post: PostCardData }) {
             <span className="text-xs text-slate-500 dark:text-slate-400">Target</span>
             <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1">
               <Target className="h-4 w-4 text-indigo-500" />
-              ${(post.target_amount_usd / 1000000).toFixed(1)}M
+              ${(post.targetAmountUsd / 1000000).toFixed(1)}M
             </span>
           </div>
           <Link
