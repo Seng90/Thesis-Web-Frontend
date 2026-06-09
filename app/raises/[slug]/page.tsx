@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await fetchFundraisingPostBySlug(params.slug)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params
+  const post = await fetchFundraisingPostBySlug(resolvedParams.slug)
   if (!post) return { title: 'Post Not Found' }
   return {
     title: `${post.title} | ${post.companyName}`,
@@ -17,8 +18,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 const fmt = (v: number | null | undefined) =>
   v == null ? null : v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${v.toLocaleString()}`
 
-export default async function FundraisingPostDetail({ params }: { params: { slug: string } }) {
-  const post = await fetchFundraisingPostBySlug(params.slug)
+export default async function FundraisingPostDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params
+  const post = await fetchFundraisingPostBySlug(resolvedParams.slug)
 
   if (!post) {
     notFound()

@@ -3,7 +3,7 @@ import { Calendar, Target, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function RaiseCard({ post }: { post: FundraisingPost }) {
+export default function RaiseCard({ post, priority = false }: { post: FundraisingPost; priority?: boolean }) {
   const isExpired = new Date(post.deadline) < new Date()
 
   return (
@@ -16,6 +16,7 @@ export default function RaiseCard({ post }: { post: FundraisingPost }) {
             src={post.coverUrl}
             alt={post.title}
             fill
+            priority={priority}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />

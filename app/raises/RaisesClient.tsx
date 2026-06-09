@@ -78,8 +78,8 @@ export default function RaisesClient({ posts }: { posts: FundraisingPost[] }) {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((p) => (
-                <RaiseCard key={p.slug} post={p} />
+              {filtered.map((p, i) => (
+                <RaiseCard key={p.slug} post={p} priority={i < 4} />
               ))}
             </div>
           )}
