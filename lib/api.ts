@@ -231,6 +231,27 @@ export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
   }))
 }
 
+export async function fetchFundraisingPostBySlug(slug: string): Promise<FundraisingPost | null> {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${slug}`, { next: { revalidate: 30 } })
+  if (!res.ok) {
+    if (res.status === 404) return null
+    throw new Error('Failed to fetch fundraising post detail')
+  }
+  const p = await res.json()
+  return {
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    companyName: p.companyName ?? p.company_name,
+    roundType: p.roundType ?? p.round_type,
+    targetAmountUsd: p.targetAmountUsd ?? p.target_amount_usd,
+    deadline: p.deadline,
+    coverUrl: p.coverUrl ?? p.cover_url,
+    tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags) : []),
+    publishedAt: p.publishedAt ?? p.published_at,
+  }
+}
+
 // --- Founders ---
 
 export async function fetchFounders(): Promise<Founder[]> {
