@@ -194,14 +194,18 @@ export async function fetchInvestor(id: string): Promise<InvestorWithPortfolio |
 export async function fetchInvestments(): Promise<InvestmentWithDetails[]> {
   const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
   if (!res.ok) throw new Error('Failed to fetch investments')
-  const data = await res.json()
+  const text = await res.text()
+  if (!text) return []
+  const data = JSON.parse(text)
   return data.map(mapInvestment)
 }
 
 export async function fetchPackages(): Promise<Package[]> {
   const res = await fetch(`${API_BASE}/user/packages`, { next: { revalidate: 60 } })
   if (!res.ok) throw new Error('Failed to fetch packages')
-  const data = await res.json()
+  const text = await res.text()
+  if (!text) return []
+  const data = JSON.parse(text)
   return data.map((p: any) => ({
     id: p.id,
     name: p.name,
@@ -228,7 +232,9 @@ const parseTags = (tags: any): string[] => {
 export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
   const res = await fetch(`${API_BASE}/user/fundraising-posts`, { next: { revalidate: 30 } })
   if (!res.ok) throw new Error('Failed to fetch fundraising posts')
-  const data = await res.json()
+  const text = await res.text()
+  if (!text) return []
+  const data = JSON.parse(text)
   return data.map((p: any) => ({
     slug: p.slug,
     title: p.title,
@@ -254,7 +260,9 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
     if (res.status === 404) return null
     throw new Error('Failed to fetch fundraising post detail')
   }
-  const p = await res.json()
+  const text = await res.text()
+  if (!text) return null
+  const p = JSON.parse(text)
   return {
     slug: p.slug,
     title: p.title,
