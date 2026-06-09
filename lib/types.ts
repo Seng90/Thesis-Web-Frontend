@@ -73,12 +73,17 @@ export interface FundraisingPost {
   slug: string
   title: string
   excerpt: string
+  content?: string
   companyName: string
   roundType: string
   targetAmountUsd: number
+  minTicketUsd?: number
   deadline: string
   coverUrl: string | null
   tags: string[]
+  contactEmail?: string
+  pitchDeckUrl?: string
+  websiteUrl?: string
   publishedAt: string
 }
 

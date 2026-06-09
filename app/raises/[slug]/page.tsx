@@ -27,12 +27,12 @@ export default async function FundraisingPostDetail({ params }: { params: { slug
   // Fallbacks for fields that the backend hasn't provided yet
   // We'll optionally render them if they exist in the future, 
   // but for now they will be undefined/null in our API type.
-  const content = (post as any).content || post.excerpt
-  const minTicketUsd = (post as any).min_ticket_usd || (post as any).minTicketUsd
+  const content = post.content || post.excerpt
+  const minTicketUsd = post.minTicketUsd
   const deadlineDate = post.deadline ? new Date(post.deadline).toLocaleDateString() : null
-  const contactEmail = (post as any).contact_email || (post as any).contactEmail
-  const pitchDeckUrl = (post as any).pitch_deck_url || (post as any).pitchDeckUrl
-  const websiteUrl = (post as any).website_url || (post as any).websiteUrl
+  const contactEmail = post.contactEmail
+  const pitchDeckUrl = post.pitchDeckUrl
+  const websiteUrl = post.websiteUrl
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
