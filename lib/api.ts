@@ -213,6 +213,18 @@ export async function fetchPackages(): Promise<Package[]> {
   }))
 }
 
+const parseTags = (tags: any): string[] => {
+  if (Array.isArray(tags)) return tags
+  if (typeof tags === 'string' && tags.trim()) {
+    try {
+      return JSON.parse(tags)
+    } catch {
+      return []
+    }
+  }
+  return []
+}
+
 export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
   const res = await fetch(`${API_BASE}/user/fundraising-posts`, { next: { revalidate: 30 } })
   if (!res.ok) throw new Error('Failed to fetch fundraising posts')
@@ -228,7 +240,7 @@ export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
     minTicketUsd: p.minTicketUsd ?? p.min_ticket_usd,
     deadline: p.deadline,
     coverUrl: p.coverUrl ?? p.cover_url,
-    tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags) : []),
+    tags: parseTags(p.tags),
     contactEmail: p.contactEmail ?? p.contact_email,
     pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
     websiteUrl: p.websiteUrl ?? p.website_url,
@@ -254,7 +266,7 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
     minTicketUsd: p.minTicketUsd ?? p.min_ticket_usd,
     deadline: p.deadline,
     coverUrl: p.coverUrl ?? p.cover_url,
-    tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags) : []),
+    tags: parseTags(p.tags),
     contactEmail: p.contactEmail ?? p.contact_email,
     pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
     websiteUrl: p.websiteUrl ?? p.website_url,
