@@ -16,6 +16,8 @@ import type {
   InvestmentWithDetails,
   Package,
   FundraisingPost,
+  PostReactionSummary,
+  PostComment,
 } from './types'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
@@ -280,6 +282,32 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
     websiteUrl: p.websiteUrl ?? p.website_url,
     publishedAt: p.publishedAt ?? p.published_at,
   }
+}
+
+// --- Social Engagement (Likes & Comments) ---
+
+export async function fetchPostReactions(id: string, token?: string): Promise<PostReactionSummary> {
+  const headers: HeadersInit = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/reactions`, {
+    headers,
+    cache: 'no-store'
+  })
+  if (!res.ok) throw new Error('Failed to fetch post reactions')
+  return await res.json()
+}
+
+export async function fetchPostComments(id: string, token?: string): Promise<PostComment[]> {
+  const headers: HeadersInit = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/comments`, {
+    headers,
+    cache: 'no-store'
+  })
+  if (!res.ok) throw new Error('Failed to fetch post comments')
+  return await res.json()
 }
 
 // --- Founders ---

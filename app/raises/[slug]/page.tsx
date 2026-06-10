@@ -4,6 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import PostReactions from '@/components/raises/PostReactions'
+import CommentSection from '@/components/raises/CommentSection'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const resolvedParams = await params
@@ -112,6 +114,11 @@ export default async function FundraisingPostDetail({ params }: { params: Promis
           {content}
         </div>
 
+        {/* Post Reactions */}
+        <div className="mt-8">
+          <PostReactions postId={post.slug} /> 
+        </div>
+
         {/* Tags */}
         {post.tags.length > 0 && (
           <div className="mt-12 flex flex-wrap gap-2">
@@ -168,6 +175,10 @@ export default async function FundraisingPostDetail({ params }: { params: Promis
             )}
           </div>
         </div>
+
+        {/* Comment Section */}
+        {/* We need the actual post ID or slug. We pass slug for now. */}
+        <CommentSection postSlug={post.slug} postId={post.slug} />
 
       </article>
     </div>

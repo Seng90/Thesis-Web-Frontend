@@ -87,6 +87,23 @@ export interface FundraisingPost {
   publishedAt: string
 }
 
+export interface PostReactionSummary {
+  likes: number
+  dislikes: number
+  currentUserReaction: 'LIKE' | 'DISLIKE' | null
+}
+
+export interface PostComment {
+  id: string
+  content: string
+  createdAt: string
+  username: string
+  avatarUrl: string | null
+  likes: number
+  dislikes: number
+  currentUserReaction: 'LIKE' | 'DISLIKE' | null
+}
+
 export interface Member {
   id: string
   username: string
