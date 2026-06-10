@@ -16,6 +16,7 @@ export interface AuthUser {
   username?: string
   email?: string
   role?: string
+  avatarUrl?: string
 }
 
 interface AuthContextType {
@@ -26,6 +27,7 @@ interface AuthContextType {
   signup: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
   loginWithToken: (token: string) => { success: boolean; error?: string }
   logout: () => void
+  updateUser: (data: Partial<AuthUser>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -92,7 +94,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.user?.id ?? '',
         username: data.user?.username ?? '',
         email: data.user?.email ?? email,
-        role: 'member',
+        role: data.user?.role ?? 'member',
+        avatarUrl: data.user?.avatar_url ?? data.user?.avatarUrl ?? '',
       }
 
       persistSession(data.access_token, authUser)
@@ -151,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username: payload.username ?? '',
         email: payload.email ?? '',
         role: payload.role ?? 'member',
+        avatarUrl: payload.avatar_url ?? payload.avatarUrl ?? '',
       }
 
       persistSession(newToken, authUser)
@@ -165,8 +169,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearSession()
   }, [])
 
+  // --- Update User ---
+  const updateUser = useCallback((data: Partial<AuthUser>) => {
+    setUser(prev => {
+      if (!prev) return prev
+      const newUser = { ...prev, ...data }
+      if (token) persistSession(token, newUser)
+      return newUser
+    })
+  }, [token])
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, signup, loginWithToken, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, signup, loginWithToken, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
