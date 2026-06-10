@@ -3,20 +3,25 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
-import { Building2, Save, FileText, LayoutList, Target, Calendar, Tag, Link2, Mail, Loader2, ImagePlus } from 'lucide-react'
+import { Building2, Save, FileText, LayoutList, Target, Calendar, Tag, Link2, Mail, Loader2, ImagePlus, UploadCloud } from 'lucide-react'
 
-// Mock Data for user's companies
-const MOCK_COMPANIES = [
-  { id: '1', name: 'LaoAgri Tech' },
-  { id: '2', name: 'Vientiane Delivery' },
-]
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+
+interface Company {
+  id: string
+  name: string
+}
 
 export default function PostRaisePage() {
-  const { user, isLoading: isAuthLoading } = useAuth()
+  const { user, token, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
 
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [isCompaniesLoading, setIsCompaniesLoading] = useState(true)
+  const [isUploading, setIsUploading] = useState(false)
 
   // Form State
   const [formData, setFormData] = useState({
@@ -42,25 +47,109 @@ export default function PostRaisePage() {
     }
   }, [user, isAuthLoading, router])
 
+  // Fetch Companies
+  useEffect(() => {
+    async function fetchCompanies() {
+      if (!token) return
+      try {
+        const res = await fetch(`${API_BASE}/user/companies/my`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setCompanies(data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch companies', err)
+      } finally {
+        setIsCompaniesLoading(false)
+      }
+    }
+    fetchCompanies()
+  }, [token])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    setError('')
+    
+    const uploadData = new FormData()
+    uploadData.append('file', file)
+
+    try {
+      const res = await fetch(`${API_BASE}/upload`, {
+        method: 'POST',
+        body: uploadData,
+        // Don't set Content-Type header, let browser set it with boundary for multipart/form-data
+      })
+
+      if (!res.ok) throw new Error('Upload failed')
+      
+      const data = await res.json()
+      setFormData(prev => ({ ...prev, coverUrl: data.url }))
+    } catch (err) {
+      setError('Failed to upload image. Please try again.')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!token) return
+
     setIsLoading(true)
+    setError('')
 
-    // Simulate API request delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      // Format payload (numbers, tags)
+      const payload = {
+        company_id: formData.companyId,
+        title: formData.title,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        round_type: formData.roundType,
+        target_amount_usd: Number(formData.targetAmountUsd),
+        min_ticket_usd: Number(formData.minTicketUsd),
+        deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
+        contact_email: formData.contactEmail,
+        website_url: formData.websiteUrl,
+        pitch_deck_url: formData.pitchDeckUrl,
+        tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+        cover_url: formData.coverUrl
+      }
 
-    setIsLoading(false)
-    setSuccess(true)
+      const res = await fetch(`${API_BASE}/user/fundraising-posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      })
 
-    // Wait a bit to show success message, then redirect
-    setTimeout(() => {
-      router.refresh() // Invalidate cache
-      router.push('/raises')
-    }, 2000)
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null)
+        throw new Error(errorData?.message || 'Failed to create post')
+      }
+
+      setSuccess(true)
+
+      setTimeout(() => {
+        router.refresh() // Invalidate cache
+        router.push('/raises')
+      }, 2000)
+
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong')
+      setIsLoading(false)
+    }
   }
 
   // Show loading state while checking auth
@@ -98,6 +187,12 @@ export default function PostRaisePage() {
           </p>
         </div>
 
+        {error && (
+          <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600 dark:bg-red-500/10 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
           
@@ -121,14 +216,19 @@ export default function PostRaisePage() {
                   required
                   value={formData.companyId}
                   onChange={handleChange}
-                  className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  disabled={isCompaniesLoading}
+                  className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:opacity-50"
                 >
-                  <option value="" disabled>Select a company</option>
-                  {MOCK_COMPANIES.map(c => (
+                  <option value="" disabled>
+                    {isCompaniesLoading ? 'Loading companies...' : 'Select a company'}
+                  </option>
+                  {companies.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
-                <p className="mt-1.5 text-xs text-slate-500">You can only raise funds for companies you own.</p>
+                {!isCompaniesLoading && companies.length === 0 && (
+                  <p className="mt-1.5 text-xs text-red-500">You do not have any approved companies yet.</p>
+                )}
               </div>
 
               {/* Title */}
@@ -285,20 +385,42 @@ export default function PostRaisePage() {
             </div>
             <div className="p-6 space-y-6">
               
-              {/* Cover Image */}
+              {/* Cover Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-                  <ImagePlus className="h-4 w-4" /> Cover Image URL
+                  <ImagePlus className="h-4 w-4" /> Cover Image
                 </label>
-                <input
-                  type="url"
-                  name="coverUrl"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.coverUrl}
-                  onChange={handleChange}
-                  className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                <p className="mt-1.5 text-xs text-slate-500">Temporary mock for image uploading. Provide a public URL.</p>
+                
+                <div className="mt-2 flex items-center gap-4">
+                  {formData.coverUrl && (
+                    <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={formData.coverUrl} alt="Preview" className="h-full w-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <label className="relative flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 py-4 px-6 transition-colors">
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+                          <span className="text-sm font-medium text-slate-500">Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud className="h-5 w-5 text-indigo-500" />
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Click to upload an image</span>
+                        </>
+                      )}
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={handleImageUpload}
+                        disabled={isUploading}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
 
               {/* Pitch Deck */}
@@ -372,7 +494,7 @@ export default function PostRaisePage() {
           <div className="flex justify-end pt-4">
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isUploading || (companies.length === 0 && !isCompaniesLoading)}
               className="inline-flex h-12 w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 text-base font-semibold text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-70 disabled:hover:translate-y-0"
             >
               {isLoading ? (
