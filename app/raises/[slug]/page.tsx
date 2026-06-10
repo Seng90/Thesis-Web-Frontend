@@ -116,7 +116,7 @@ export default async function FundraisingPostDetail({ params }: { params: Promis
 
         {/* Post Reactions */}
         <div className="mt-8">
-          <PostReactions postId={post.slug} /> 
+          <PostReactions postId={post.id} /> 
         </div>
 
         {/* Tags */}
@@ -177,8 +177,7 @@ export default async function FundraisingPostDetail({ params }: { params: Promis
         </div>
 
         {/* Comment Section */}
-        {/* We need the actual post ID or slug. We pass slug for now. */}
-        <CommentSection postSlug={post.slug} postId={post.slug} />
+        <CommentSection postSlug={post.slug} postId={post.id} />
 
       </article>
     </div>

@@ -70,6 +70,7 @@ export interface Package {
 }
 
 export interface FundraisingPost {
+  id: string
   slug: string
   title: string
   excerpt: string

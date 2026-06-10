@@ -238,6 +238,7 @@ export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
   if (!text) return []
   const data = JSON.parse(text)
   return data.map((p: any) => ({
+    id: p.id,
     slug: p.slug,
     title: p.title,
     excerpt: p.excerpt,
@@ -266,6 +267,7 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
   if (!text) return null
   const p = JSON.parse(text)
   return {
+    id: p.id,
     slug: p.slug,
     title: p.title,
     excerpt: p.excerpt,
@@ -307,7 +309,17 @@ export async function fetchPostComments(id: string, token?: string): Promise<Pos
     cache: 'no-store'
   })
   if (!res.ok) throw new Error('Failed to fetch post comments')
-  return await res.json()
+  const rawData = await res.json()
+  return rawData.map((c: any) => ({
+    id: c.id,
+    content: c.content,
+    createdAt: c.created_at,
+    username: c.member?.username ?? 'Unknown',
+    avatarUrl: c.member?.avatar_url ?? null,
+    likes: c.likes ?? 0,
+    dislikes: c.dislikes ?? 0,
+    currentUserReaction: c.currentUserReaction ?? null,
+  }))
 }
 
 // --- Founders ---
