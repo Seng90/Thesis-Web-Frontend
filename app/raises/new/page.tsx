@@ -32,6 +32,7 @@ export default function PostRaisePage() {
     roundType: 'Seed',
     targetAmountUsd: '',
     minTicketUsd: '',
+    startDate: '',
     deadline: '',
     contactEmail: '',
     websiteUrl: '',
@@ -123,7 +124,8 @@ export default function PostRaisePage() {
         round_type: formData.roundType,
         target_amount_usd: Number(formData.targetAmountUsd),
         min_ticket_usd: Number(formData.minTicketUsd),
-        deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
+        start_date: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
+        deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
         tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
       }
 
@@ -321,13 +323,27 @@ export default function PostRaisePage() {
                 </select>
               </div>
 
+              {/* Start Date */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" /> Start Time (Optional)
+                </label>
+                <input
+                  type="datetime-local"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+              </div>
+
               {/* Deadline */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" /> Deadline
+                  <Calendar className="h-4 w-4" /> End Time (Deadline)
                 </label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   name="deadline"
                   required
                   value={formData.deadline}
