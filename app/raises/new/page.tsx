@@ -116,22 +116,22 @@ export default function PostRaisePage() {
     try {
       // Format payload (numbers, tags)
       const payload: Record<string, any> = {
-        companyId: formData.companyId,
+        company_id: formData.companyId,
         title: formData.title,
         excerpt: formData.excerpt,
         content: formData.content,
-        roundType: formData.roundType,
-        targetAmountUsd: Number(formData.targetAmountUsd),
-        minTicketUsd: Number(formData.minTicketUsd),
+        round_type: formData.roundType,
+        target_amount_usd: Number(formData.targetAmountUsd),
+        min_ticket_usd: Number(formData.minTicketUsd),
         deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
         tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
       }
 
-      // Only attach optional strings if they are not empty (to prevent validation errors)
-      if (formData.contactEmail) payload.contactEmail = formData.contactEmail
-      if (formData.websiteUrl) payload.websiteUrl = formData.websiteUrl
-      if (formData.pitchDeckUrl) payload.pitchDeckUrl = formData.pitchDeckUrl
-      if (formData.coverUrl) payload.coverUrl = formData.coverUrl
+      // Attach optional fields if not empty
+      if (formData.contactEmail) payload.contact_email = formData.contactEmail
+      if (formData.websiteUrl) payload.website_url = formData.websiteUrl
+      if (formData.pitchDeckUrl) payload.pitch_deck_url = formData.pitchDeckUrl
+      if (formData.coverUrl) payload.cover_url = formData.coverUrl
 
       const res = await fetch(`${API_BASE}/user/fundraising-posts`, {
         method: 'POST',
