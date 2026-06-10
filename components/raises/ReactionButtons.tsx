@@ -57,11 +57,12 @@ export default function ReactionButtons({
     }
 
     try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
       const endpoint = targetType === 'post' 
-        ? `/api/user/fundraising-posts/${targetId}/react`
-        : `/api/user/comments/${targetId}/react`
+        ? `/user/fundraising-posts/${targetId}/react`
+        : `/user/comments/${targetId}/react`
 
-      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + endpoint, {
+      const res = await fetch(API_BASE + endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

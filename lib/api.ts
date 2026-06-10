@@ -243,6 +243,7 @@ export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
     title: p.title,
     excerpt: p.excerpt,
     content: p.content,
+    companyId: p.companyId ?? p.company_id ?? '',
     companyName: p.companyName ?? p.company_name,
     roundType: p.roundType ?? p.round_type,
     targetAmountUsd: p.targetAmountUsd ?? p.target_amount_usd,
@@ -250,10 +251,13 @@ export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
     deadline: p.deadline,
     coverUrl: p.coverUrl ?? p.cover_url,
     tags: parseTags(p.tags),
+    status: p.status ?? 'Active',
+    adminFeedback: p.adminFeedback ?? p.admin_feedback,
     contactEmail: p.contactEmail ?? p.contact_email,
     pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
     websiteUrl: p.websiteUrl ?? p.website_url,
     publishedAt: p.publishedAt ?? p.published_at,
+    startDate: p.startDate ?? p.start_date,
   }))
 }
 
@@ -272,6 +276,7 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
     title: p.title,
     excerpt: p.excerpt,
     content: p.content,
+    companyId: p.companyId ?? p.company_id ?? '',
     companyName: p.companyName ?? p.company_name,
     roundType: p.roundType ?? p.round_type,
     targetAmountUsd: p.targetAmountUsd ?? p.target_amount_usd,
@@ -279,10 +284,13 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
     deadline: p.deadline,
     coverUrl: p.coverUrl ?? p.cover_url,
     tags: parseTags(p.tags),
+    status: p.status ?? 'Active',
+    adminFeedback: p.adminFeedback ?? p.admin_feedback,
     contactEmail: p.contactEmail ?? p.contact_email,
     pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
     websiteUrl: p.websiteUrl ?? p.website_url,
     publishedAt: p.publishedAt ?? p.published_at,
+    startDate: p.startDate ?? p.start_date,
   }
 }
 
@@ -300,11 +308,11 @@ export async function fetchPostReactions(id: string, token?: string): Promise<Po
   return await res.json()
 }
 
-export async function fetchPostComments(id: string, token?: string): Promise<PostComment[]> {
-  const headers: HeadersInit = {}
+export async function fetchPostComments(postId: string, token?: string): Promise<PostComment[]> {
+  const headers: Record<string, string> = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
-
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/comments`, {
+  
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${postId}/comments`, {
     headers,
     cache: 'no-store'
   })
@@ -373,4 +381,72 @@ export async function fetchFeaturedCompanies(limit: number = 3): Promise<Company
     .filter((c) => c.status === 'Approved')
     .sort((a, b) => b.viewCount - a.viewCount)
     .slice(0, limit)
+}
+
+// --- Management APIs ---
+
+export async function fetchMyPosts(token: string): Promise<FundraisingPost[]> {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/my-posts`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+    cache: 'no-store'
+  })
+  if (!res.ok) throw new Error('Failed to fetch my posts')
+  const data = await res.json()
+  return data.map((p: any) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    content: p.content,
+    companyId: p.companyId ?? p.company_id ?? '',
+    companyName: p.companyName ?? p.company_name,
+    roundType: p.roundType ?? p.round_type,
+    targetAmountUsd: p.targetAmountUsd ?? p.target_amount_usd,
+    minTicketUsd: p.minTicketUsd ?? p.min_ticket_usd,
+    deadline: p.deadline,
+    coverUrl: p.coverUrl ?? p.cover_url,
+    tags: parseTags(p.tags),
+    status: p.status ?? 'Active',
+    adminFeedback: p.adminFeedback ?? p.admin_feedback,
+    contactEmail: p.contactEmail ?? p.contact_email,
+    pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
+    websiteUrl: p.websiteUrl ?? p.website_url,
+    publishedAt: p.publishedAt ?? p.published_at,
+    startDate: p.startDate ?? p.start_date,
+  }))
+}
+
+export async function updateFundraisingPost(id: string, token: string, payload: Record<string, any>) {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  })
+  if (!res.ok) {
+    const errorBody = await res.text()
+    console.error('Update post error:', errorBody)
+    throw new Error('Failed to update post')
+  }
+  return res.json()
+}
+
+export async function repostFundraisingPost(id: string, token: string) {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/repost`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  if (!res.ok) throw new Error('Failed to repost')
+  return res.json()
+}
+
+export async function cancelFundraisingPost(id: string, token: string) {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/cancel`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+  if (!res.ok) throw new Error('Failed to cancel post')
+  return res.json()
 }

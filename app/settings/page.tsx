@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
-import { User, Lock, Bell, Palette, UploadCloud, Loader2, Save, CheckCircle2, AlertCircle } from 'lucide-react'
+import { User, Lock, Bell, Palette, UploadCloud, Loader2, Save, CheckCircle2, AlertCircle, LayoutList } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
@@ -235,6 +236,15 @@ export default function SettingsPage() {
               >
                 <Bell className="w-4 h-4" /> Preferences
               </button>
+              
+              <div className="my-2 border-t border-surface-200 dark:border-white/5"></div>
+              
+              <Link
+                href="/raises/my-posts"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-white/5"
+              >
+                <LayoutList className="w-4 h-4" /> My Posts
+              </Link>
             </nav>
           </div>
 

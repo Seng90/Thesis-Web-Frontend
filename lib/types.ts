@@ -82,10 +82,14 @@ export interface FundraisingPost {
   deadline: string
   coverUrl: string | null
   tags: string[]
+  status: 'Active' | 'Expired' | 'Cancelled' | 'Hidden'
+  adminFeedback?: string
   contactEmail?: string
   pitchDeckUrl?: string
   websiteUrl?: string
   publishedAt: string
+  startDate?: string
+  companyId: string
 }
 
 export interface PostReactionSummary {

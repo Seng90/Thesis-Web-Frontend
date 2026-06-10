@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Menu, X, LogOut, User, Settings, Palette } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import NotificationsBell from '@/components/layout/NotificationsBell'
 
 const navLinks = [
   { href: '/companies', label: 'Companies' },
@@ -100,8 +101,10 @@ export default function Navbar() {
             {authLoading ? (
               <div className="w-20 h-9 rounded-lg bg-slate-100 dark:bg-surface-800 animate-pulse"></div>
             ) : user ? (
-              /* Profile Dropdown */
-              <div className="relative" ref={dropdownRef}>
+              <div className="flex items-center gap-2">
+                <NotificationsBell />
+                {/* Profile Dropdown */}
+                <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
@@ -165,6 +168,7 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+            </div>
             ) : (
               /* Logged Out State */
               <>

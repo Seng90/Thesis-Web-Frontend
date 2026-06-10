@@ -42,7 +42,11 @@ export default function CommentSection({ postSlug, postId }: CommentSectionProps
 
     setIsSubmitting(true)
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/fundraising-posts/${postId}/comments`, {
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'}/user/fundraising-posts/${postId}/comments`
+      console.log('[CommentSection] POST', url)
+      console.log('[CommentSection] Token:', token ? token.substring(0, 20) + '...' : 'MISSING')
+
+      const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,13 +55,33 @@ export default function CommentSection({ postSlug, postId }: CommentSectionProps
         body: JSON.stringify({ content: newComment.trim() })
       })
 
-      if (!res.ok) throw new Error('Failed to post comment')
+      console.log('[CommentSection] Response status:', res.status)
       
-      const createdComment = await res.json()
+      if (!res.ok) {
+        const errorBody = await res.text()
+        console.error('[CommentSection] Error body:', errorBody)
+        throw new Error(`Failed to post comment (${res.status})`)
+      }
+      
+      const raw = await res.json()
+      console.log('[CommentSection] Raw response:', raw)
+      
+      // Map backend snake_case to frontend camelCase
+      const createdComment: PostComment = {
+        id: raw.id,
+        content: raw.content,
+        createdAt: raw.created_at ?? raw.createdAt,
+        username: raw.member?.username ?? user?.username ?? 'You',
+        avatarUrl: raw.member?.avatar_url ?? user?.avatarUrl ?? null,
+        likes: 0,
+        dislikes: 0,
+        currentUserReaction: null,
+      }
+      
       setComments(prev => [createdComment, ...prev])
       setNewComment('')
     } catch (e) {
-      console.error(e)
+      console.error('[CommentSection] Submit error:', e)
       alert('Failed to post comment. Please try again.')
     } finally {
       setIsSubmitting(false)
