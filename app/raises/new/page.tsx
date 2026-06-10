@@ -109,21 +109,23 @@ export default function PostRaisePage() {
 
     try {
       // Format payload (numbers, tags)
-      const payload = {
+      const payload: Record<string, any> = {
         company_id: formData.companyId,
         title: formData.title,
         excerpt: formData.excerpt,
-        content: formData.content,
+        content: formData.content, // New field, camelCase mapping applies but it's single word
         round_type: formData.roundType,
         target_amount_usd: Number(formData.targetAmountUsd),
-        min_ticket_usd: Number(formData.minTicketUsd),
+        minTicketUsd: Number(formData.minTicketUsd), // New field, camelCase
         deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
-        contact_email: formData.contactEmail,
-        website_url: formData.websiteUrl,
-        pitch_deck_url: formData.pitchDeckUrl,
         tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
-        cover_url: formData.coverUrl
       }
+
+      // Only attach optional strings if they are not empty (to prevent validation errors)
+      if (formData.contactEmail) payload.contactEmail = formData.contactEmail
+      if (formData.websiteUrl) payload.websiteUrl = formData.websiteUrl
+      if (formData.pitchDeckUrl) payload.pitchDeckUrl = formData.pitchDeckUrl
+      if (formData.coverUrl) payload.cover_url = formData.coverUrl
 
       const res = await fetch(`${API_BASE}/user/fundraising-posts`, {
         method: 'POST',
