@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
-import { Building2, Save, FileText, LayoutList, Target, Calendar, Tag, Link2, Mail, Loader2, ImagePlus, UploadCloud } from 'lucide-react'
+import { Building2, Save, FileText, LayoutList, Target, Calendar, Clock, Tag, Link2, Mail, Loader2, ImagePlus, UploadCloud } from 'lucide-react'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
@@ -32,8 +32,9 @@ export default function PostRaisePage() {
     roundType: 'Seed',
     targetAmountUsd: '',
     minTicketUsd: '',
-    startDate: '',
-    deadline: '',
+    fundraisingDate: '',
+    startTime: '09:00',
+    endTime: '17:00',
     contactEmail: '',
     websiteUrl: '',
     pitchDeckUrl: '',
@@ -124,8 +125,12 @@ export default function PostRaisePage() {
         round_type: formData.roundType,
         target_amount_usd: Number(formData.targetAmountUsd),
         min_ticket_usd: Number(formData.minTicketUsd),
-        start_date: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
-        deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
+        start_date: formData.fundraisingDate && formData.startTime
+          ? new Date(`${formData.fundraisingDate}T${formData.startTime}:00`).toISOString()
+          : undefined,
+        deadline: formData.fundraisingDate && formData.endTime
+          ? new Date(`${formData.fundraisingDate}T${formData.endTime}:00`).toISOString()
+          : undefined,
         tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
       }
 
@@ -323,34 +328,100 @@ export default function PostRaisePage() {
                 </select>
               </div>
 
-              {/* Start Date */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" /> Start Time (Optional)
-                </label>
-                <input
-                  type="datetime-local"
-                  name="startDate"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
+              {/* Fundraising Schedule — Full Width */}
+            </div>
+            <div className="px-6 pb-6">
+              <div className="rounded-2xl border border-indigo-200 dark:border-indigo-500/20 bg-gradient-to-br from-indigo-50/60 via-white to-violet-50/40 dark:from-indigo-950/30 dark:via-slate-900 dark:to-violet-950/20 p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-5">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-500/20">
+                    <Calendar className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Fundraising Schedule</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Choose the date and set your start &amp; end time</p>
+                  </div>
+                </div>
 
-              {/* Deadline */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" /> End Time (Deadline)
-                </label>
-                <input
-                  type="datetime-local"
-                  name="deadline"
-                  required
-                  value={formData.deadline}
-                  onChange={handleChange}
-                  className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
+                {/* Date Picker */}
+                <div className="mb-5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    name="fundraisingDate"
+                    required
+                    value={formData.fundraisingDate}
+                    onChange={handleChange}
+                    className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 px-4 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                {/* Time Range */}
+                <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3">
+                  {/* Start Time */}
+                  <div>
+                    <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                      <Clock className="h-3.5 w-3.5" /> Start
+                    </label>
+                    <input
+                      type="time"
+                      name="startTime"
+                      required
+                      value={formData.startTime}
+                      onChange={handleChange}
+                      className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 px-4 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-center"
+                    />
+                  </div>
+
+                  {/* Arrow Connector */}
+                  <div className="flex flex-col items-center pb-3 gap-1">
+                    <div className="h-px w-8 bg-gradient-to-r from-indigo-400 to-violet-400 dark:from-indigo-500 dark:to-violet-500 rounded-full"></div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">to</span>
+                    <div className="h-px w-8 bg-gradient-to-r from-violet-400 to-indigo-400 dark:from-violet-500 dark:to-indigo-500 rounded-full"></div>
+                  </div>
+
+                  {/* End Time */}
+                  <div>
+                    <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                      <Clock className="h-3.5 w-3.5" /> End
+                    </label>
+                    <input
+                      type="time"
+                      name="endTime"
+                      required
+                      value={formData.endTime}
+                      onChange={handleChange}
+                      className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 px-4 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-center"
+                    />
+                  </div>
+                </div>
+
+                {/* Visual Timeline */}
+                {formData.fundraisingDate && (
+                  <div className="mt-5 pt-4 border-t border-indigo-100 dark:border-indigo-500/10">
+                    <div className="relative h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                      <div
+                        className="absolute inset-y-0 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-300"
+                        style={{
+                          left: `${(parseInt(formData.startTime.split(':')[0]) / 24) * 100}%`,
+                          right: `${100 - (parseInt(formData.endTime.split(':')[0]) / 24) * 100}%`,
+                        }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                        {new Date(`${formData.fundraisingDate}T${formData.startTime}`).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span className="text-xs font-medium text-violet-600 dark:text-violet-400">
+                        {new Date(`${formData.fundraisingDate}T${formData.endTime}`).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
+            </div>
+            <div className="p-6 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6">
 
               {/* Target Amount */}
               <div>
