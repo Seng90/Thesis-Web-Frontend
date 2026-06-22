@@ -112,25 +112,24 @@ export default function InvestorsPage() {
               />
             </div>
             
-            <div className="flex flex-wrap gap-2">
-              {types.map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setActiveFilter(type)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    activeFilter === type
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+            <div className="w-full md:w-64 shrink-0">
+              <select
+                value={activeFilter}
+                onChange={(e) => setActiveFilter(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-surface-700 bg-white dark:bg-surface-800 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors cursor-pointer appearance-none"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+              >
+                {types.map((type) => (
+                  <option key={type} value={type}>
+                    {type === 'All' ? 'All Types' : type}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           
-          <div className="text-sm text-slate-500 mb-6">
-            Showing <span className="font-semibold text-slate-700">{filteredInvestors.length}</span> results
+          <div className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+            Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{filteredInvestors.length}</span> results
           </div>
         </div>
 
@@ -138,7 +137,7 @@ export default function InvestorsPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-slate-100 h-64 rounded-2xl border border-slate-200"></div>
+              <div key={i} className="animate-pulse bg-slate-100 dark:bg-surface-800 h-64 rounded-2xl border border-slate-200 dark:border-surface-700"></div>
             ))}
           </div>
         ) : filteredInvestors.length > 0 ? (
@@ -148,12 +147,12 @@ export default function InvestorsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200/60 shadow-sm">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-20 bg-white dark:bg-surface-800 rounded-2xl border border-slate-200/60 dark:border-surface-700 shadow-sm">
+            <div className="w-16 h-16 bg-slate-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🔍</span>
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No investors found</h3>
-            <p className="text-slate-500">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No investors found</h3>
+            <p className="text-slate-500 dark:text-slate-400">
               We couldn&apos;t find any investors matching your search criteria. Try adjusting your filters.
             </p>
             <button 
@@ -161,7 +160,7 @@ export default function InvestorsPage() {
                 setSearchQuery('')
                 setActiveFilter('All')
               }}
-              className="mt-6 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg font-medium hover:bg-indigo-100 transition-colors"
+              className="mt-6 px-4 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg font-medium hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors"
             >
               Clear filters
             </button>

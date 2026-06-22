@@ -11,9 +11,10 @@ function CallbackContent() {
 
   useEffect(() => {
     const token = searchParams.get('token')
+    const refreshToken = searchParams.get('refresh_token')
 
     if (token) {
-      const result = loginWithToken(token)
+      const result = loginWithToken(token, refreshToken || undefined)
       if (result.success) {
         // Redirect to home after successful login
         router.push('/')

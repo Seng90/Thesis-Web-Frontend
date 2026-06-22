@@ -19,7 +19,7 @@ export default function SettingsPage() {
   const [isFetchingProfile, setIsFetchingProfile] = useState(true)
 
   // Profile Form State
-  const [profileData, setProfileData] = useState({ username: '', email: '', avatarUrl: '' })
+  const [profileData, setProfileData] = useState({ username: '', email: '', avatarUrl: '', role: '', packageId: '' })
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const [profileMsg, setProfileMsg] = useState({ type: '', text: '' })
@@ -49,7 +49,9 @@ export default function SettingsPage() {
           setProfileData({
             username: data.username || '',
             email: data.email || '',
-            avatarUrl: data.avatarUrl || data.avatar_url || ''
+            avatarUrl: data.avatarUrl || data.avatar_url || '',
+            role: data.role || 'Member',
+            packageId: data.packageId || 'Free Plan'
           })
           // Update global context silently in case avatar changed elsewhere
           updateUser({
@@ -328,6 +330,26 @@ export default function SettingsPage() {
                             onChange={handleProfileChange}
                             className="block w-full rounded-xl border-surface-300 dark:border-surface-700 bg-white dark:bg-surface-950 py-2.5 px-3.5 text-surface-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-colors"
                           />
+                        </div>
+                      </div>
+
+                      {/* Role & Package */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+                            Account Role
+                          </label>
+                          <div className="block w-full rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-900/50 py-2.5 px-3.5 text-surface-600 dark:text-surface-400 sm:text-sm">
+                            {profileData.role}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+                            Current Package
+                          </label>
+                          <div className="block w-full rounded-xl border border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-900/50 py-2.5 px-3.5 text-surface-600 dark:text-surface-400 sm:text-sm">
+                            {profileData.packageId}
+                          </div>
                         </div>
                       </div>
 

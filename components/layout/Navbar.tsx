@@ -1,31 +1,35 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { Menu, X, LogOut, User, Settings, Palette } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { useTheme } from 'next-themes'
 import NotificationsBell from '@/components/layout/NotificationsBell'
-
-const navLinks = [
-  { href: '/companies', label: 'Companies' },
-  { href: '/investors', label: 'Investors' },
-  { href: '/compare', label: 'Compare' },
-  { href: '/raises', label: 'Raises' },
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/pricing', label: 'Pricing' },
-]
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
+
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   
   const { user, isLoading: authLoading, logout } = useAuth()
+  const { setTheme, resolvedTheme } = useTheme()
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const navLinks = [
+    { href: '/companies', label: 'Companies' },
+    { href: '/investors', label: 'Investors' },
+    { href: '/founders', label: 'Founders' },
+    { href: '/compare', label: 'Compare' },
+    { href: '/raises', label: 'Raises' },
+    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/pricing', label: 'Pricing' },
+  ]
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
@@ -96,6 +100,7 @@ export default function Navbar() {
 
           {/* Desktop Auth Area */}
           <div className="hidden md:flex items-center gap-3">
+
             {!user && <ThemeToggle />}
 
             {authLoading ? (
@@ -146,12 +151,17 @@ export default function Navbar() {
                         <Settings className="w-4 h-4" />
                         Account Settings
                       </Link>
-                      <div className="flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                        className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                      >
                         <div className="flex items-center gap-2">
                           <Palette className="w-4 h-4" />
                           Theme
                         </div>
-                        <div className="scale-90 origin-right">
+                        <div className="scale-90 origin-right pointer-events-none">
                           <ThemeToggle />
                         </div>
                       </div>
@@ -251,12 +261,19 @@ export default function Navbar() {
                     <Settings className="w-4 h-4" />
                     Account Settings
                   </Link>
-                  <div className="flex items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-all">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-all cursor-pointer"
+                  >
                     <div className="flex items-center gap-2">
                       <Palette className="w-4 h-4" />
                       Theme
                     </div>
-                    <ThemeToggle />
+                    <div className="pointer-events-none">
+                      <ThemeToggle />
+                    </div>
                   </div>
                   <button
                     onClick={handleLogout}

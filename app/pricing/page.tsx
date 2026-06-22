@@ -106,7 +106,7 @@ export default async function PricingPage() {
                 </div>
 
                 <Link
-                  href={pkg.price > 0 ? "/signup" : "/companies"}
+                  href={pkg.price > 0 ? `/checkout/${pkg.id}` : "/companies"}
                   className={`mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all ${
                     popular
                       ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'

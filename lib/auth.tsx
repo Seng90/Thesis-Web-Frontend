@@ -25,7 +25,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   signup: (username: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  loginWithToken: (token: string) => { success: boolean; error?: string }
+  loginWithToken: (token: string, refreshToken?: string) => { success: boolean; error?: string }
   logout: () => void
   updateUser: (data: Partial<AuthUser>) => void
 }
@@ -51,17 +51,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Corrupted storage — clear it
       localStorage.removeItem('investrack_token')
+      localStorage.removeItem('investrack_refresh_token')
       localStorage.removeItem('investrack_user')
     } finally {
       setIsLoading(false)
     }
+
+    const handleTokenRefreshed = ((e: CustomEvent<string>) => {
+      setToken(e.detail)
+    }) as EventListener
+
+    const handleForceLogout = () => {
+      clearSession()
+      window.location.href = '/login'
+    }
+
+    window.addEventListener('investrack_token_refreshed', handleTokenRefreshed)
+    window.addEventListener('investrack_force_logout', handleForceLogout)
+
+    return () => {
+      window.removeEventListener('investrack_token_refreshed', handleTokenRefreshed)
+      window.removeEventListener('investrack_force_logout', handleForceLogout)
+    }
   }, [])
 
   // Save to localStorage when token/user changes
-  const persistSession = (newToken: string, newUser: AuthUser) => {
+  const persistSession = (newToken: string, newRefreshToken: string | null, newUser: AuthUser) => {
     setToken(newToken)
     setUser(newUser)
     localStorage.setItem('investrack_token', newToken)
+    if (newRefreshToken) localStorage.setItem('investrack_refresh_token', newRefreshToken)
     localStorage.setItem('investrack_user', JSON.stringify(newUser))
   }
 
@@ -69,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null)
     setUser(null)
     localStorage.removeItem('investrack_token')
+    localStorage.removeItem('investrack_refresh_token')
     localStorage.removeItem('investrack_user')
   }
 
@@ -98,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         avatarUrl: data.user?.avatar_url ?? data.user?.avatarUrl ?? '',
       }
 
-      persistSession(data.access_token, authUser)
+      persistSession(data.access_token, data.refresh_token, authUser)
       return { success: true }
     } catch {
       return { success: false, error: 'Unable to connect to server. Please try again.' }
@@ -136,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [login])
 
   // --- Login with Token (Google Auth) ---
-  const loginWithToken = useCallback((newToken: string) => {
+  const loginWithToken = useCallback((newToken: string, refreshToken?: string) => {
     try {
       // Decode JWT payload (base64)
       const base64Url = newToken.split('.')[1]
@@ -157,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         avatarUrl: payload.avatar_url ?? payload.avatarUrl ?? '',
       }
 
-      persistSession(newToken, authUser)
+      persistSession(newToken, refreshToken || null, authUser)
       return { success: true }
     } catch {
       return { success: false, error: 'Invalid token received.' }
@@ -174,7 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(prev => {
       if (!prev) return prev
       const newUser = { ...prev, ...data }
-      if (token) persistSession(token, newUser)
+      if (token) persistSession(token, localStorage.getItem('investrack_refresh_token'), newUser)
       return newUser
     })
   }, [token])

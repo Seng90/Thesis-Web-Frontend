@@ -55,17 +55,17 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-slate-900 dark:via-surface-900 dark:to-indigo-950/20">
       
       <div className="max-w-md w-full animate-fade-in">
-        <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 p-8 sm:p-10 border border-slate-100 relative overflow-hidden">
+        <div className="bg-white dark:bg-surface-800 rounded-3xl shadow-xl shadow-indigo-100/50 dark:shadow-indigo-500/10 p-8 sm:p-10 border border-slate-100 dark:border-surface-700 relative overflow-hidden">
           
           {/* Decorative Top Bar */}
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
 
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900">Create an account</h2>
-            <p className="text-slate-500 mt-2">Join the Laos startup ecosystem platform</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Create an account</h2>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Join the Laos startup ecosystem platform</p>
           </div>
 
           {/* Error Message */}
@@ -86,7 +86,7 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="username">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" htmlFor="username">
                 Username
               </label>
               <div className="relative">
@@ -99,14 +99,14 @@ export default function SignupPage() {
                   required
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-surface-700 bg-slate-50 dark:bg-surface-900 focus:bg-white dark:focus:bg-surface-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                   placeholder="johndoe"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="email">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" htmlFor="email">
                 Email Address
               </label>
               <div className="relative">
@@ -119,14 +119,14 @@ export default function SignupPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-surface-700 bg-slate-50 dark:bg-surface-900 focus:bg-white dark:focus:bg-surface-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="password">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" htmlFor="password">
                 Password
               </label>
               <div className="relative">
@@ -139,7 +139,7 @@ export default function SignupPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 dark:border-surface-700 bg-slate-50 dark:bg-surface-900 focus:bg-white dark:focus:bg-surface-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                   placeholder="••••••••"
                   minLength={6}
                 />
@@ -154,7 +154,7 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="confirmPassword">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" htmlFor="confirmPassword">
                 Confirm Password
               </label>
               <div className="relative">
@@ -167,7 +167,7 @@ export default function SignupPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 dark:border-surface-700 bg-slate-50 dark:bg-surface-900 focus:bg-white dark:focus:bg-surface-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                   placeholder="••••••••"
                 />
               </div>
@@ -180,7 +180,7 @@ export default function SignupPage() {
                 required
                 className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded cursor-pointer accent-indigo-600"
               />
-              <label htmlFor="terms" className="ml-2 block text-sm text-slate-600 cursor-pointer">
+              <label htmlFor="terms" className="ml-2 block text-sm text-slate-600 dark:text-slate-400 cursor-pointer">
                 I agree to the <Link href="#" className="text-indigo-600 hover:underline">Terms of Service</Link> and <Link href="#" className="text-indigo-600 hover:underline">Privacy Policy</Link>
               </label>
             </div>
@@ -203,17 +203,17 @@ export default function SignupPage() {
           <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
+                <div className="w-full border-t border-slate-200 dark:border-surface-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">Or continue with</span>
+                <span className="px-4 bg-white dark:bg-surface-800 text-slate-500 dark:text-slate-400">Or continue with</span>
               </div>
             </div>
 
             <div className="mt-6">
               <Link
                 href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'}/api/auth/google`}
-                className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-slate-200 dark:border-surface-700 rounded-xl shadow-sm bg-white dark:bg-surface-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-700 hover:border-slate-300 dark:hover:border-surface-600 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -228,7 +228,7 @@ export default function SignupPage() {
           </div>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Already have an account?{' '}
               <Link href="/login" className="font-semibold text-indigo-600 hover:text-indigo-500 hover:underline">
                 Log in instead

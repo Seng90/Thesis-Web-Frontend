@@ -50,24 +50,24 @@ export default function StatCard({
   }, [value])
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-slate-200/60 border-l-4 border-l-indigo-500 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-200/60 dark:border-surface-700 border-l-4 border-l-indigo-500 bg-white dark:bg-surface-800 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       {/* Decorative gradient dot */}
-      <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 opacity-60 transition-transform duration-500 group-hover:scale-125" />
+      <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-500/10 dark:to-purple-500/10 opacity-60 transition-transform duration-500 group-hover:scale-125" />
 
       <div className="relative flex items-center gap-4">
         {/* Icon */}
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 text-indigo-600 transition-transform duration-300 group-hover:scale-110">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-500/20 dark:to-purple-500/20 text-indigo-600 dark:text-indigo-400 transition-transform duration-300 group-hover:scale-110">
           {icon}
         </div>
 
         {/* Content */}
         <div>
-          <p className="text-3xl font-extrabold tracking-tight text-slate-900">
+          <p className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             {prefix}
             {displayValue.toLocaleString()}
             {suffix}
           </p>
-          <p className="mt-0.5 text-sm font-medium text-slate-500">{label}</p>
+          <p className="mt-0.5 text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
         </div>
       </div>
     </div>

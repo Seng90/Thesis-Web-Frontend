@@ -37,9 +37,20 @@ function mapCompany(raw: any): Company {
     contactEmail: raw.contact_email ?? '',
     foundedDate: raw.founded_date ?? null,
     status: raw.status ?? 'Pending',
+    operatingStatus: raw.operating_status ?? 'Active',
     viewCount: raw.view_count ?? 0,
     logoUrl: raw.logo_url ?? null,
     websiteUrl: raw.website_url ?? null,
+    facebookUrl: raw.facebook_url ?? null,
+    linkedinUrl: raw.linkedin_url ?? null,
+    registrationNumber: raw.registration_number ?? null,
+    taxId: raw.tax_id ?? null,
+    employeeCount: raw.employee_count ?? null,
+    branchCount: typeof raw.branch_count === 'number' ? raw.branch_count : (raw.branch_count ? parseInt(raw.branch_count, 10) : null),
+    headquartersAddress: raw.headquarters_address ?? null,
+    keyProducts: Array.isArray(raw.key_products) ? raw.key_products : [],
+    keyPartners: Array.isArray(raw.key_partners) ? raw.key_partners : [],
+    founderRole: raw.founder_role ?? undefined,
     approvedBy: raw.approved_by ?? null,
     createdAt: raw.created_at ?? '',
     updatedAt: raw.updated_at ?? '',
@@ -64,9 +75,11 @@ function mapInvestor(raw: any): Investor {
 function mapFounder(raw: any): Founder {
   return {
     id: raw.id,
-    name: raw.name,
-    bio: raw.bio ?? null,
-    linkedinUrl: raw.linkedin_url ?? null,
+    nameEn: raw.name_en ?? '',
+    nameLa: raw.name_la ?? '',
+    bio: raw.bio ?? undefined,
+    linkedinUrl: raw.linkedin_url ?? undefined,
+    role: raw.role ?? undefined,
     createdAt: raw.created_at ?? '',
     updatedAt: raw.updated_at ?? '',
   }
@@ -88,11 +101,14 @@ function mapInvestment(raw: any): Investment {
   return {
     id: raw.id,
     companyId: raw.company_id,
-    investorId: raw.investor_id,
+    investorId: raw.investor_id ?? null,
+    customInvestorName: raw.custom_investor_name ?? undefined,
     roundId: raw.round_id,
     amount: typeof raw.amount === 'string' ? parseFloat(raw.amount) : raw.amount,
     currency: raw.currency ?? 'USD',
     investDate: raw.invest_date ?? '',
+    status: raw.status ?? 'Pending',
+    referenceUrl: raw.reference_url ?? null,
     createdAt: raw.created_at ?? '',
     updatedAt: raw.updated_at ?? '',
   }
@@ -120,7 +136,7 @@ function mapCompanyWithRelations(raw: any): CompanyWithRelations {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (inv: any) => ({
       ...mapInvestment(inv),
-      investor: mapInvestor(inv.investors ?? inv.investor ?? {}),
+      investor: (inv.investors || inv.investor) ? mapInvestor(inv.investors ?? inv.investor) : null,
       round: mapFundingRound(inv.funding_rounds ?? inv.funding_round ?? {}),
     })
   )
@@ -161,6 +177,38 @@ async function apiFetch<T>(path: string): Promise<T | null> {
   } catch {
     return null
   }
+}
+
+export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  let res = await fetch(url, options)
+
+  if (res.status === 401 && typeof window !== 'undefined') {
+    const refreshToken = localStorage.getItem('investrack_refresh_token')
+    if (refreshToken) {
+      const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken })
+      })
+
+      if (refreshRes.ok) {
+        const data = await refreshRes.json()
+        localStorage.setItem('investrack_token', data.access_token)
+        localStorage.setItem('investrack_refresh_token', data.refresh_token)
+        window.dispatchEvent(new CustomEvent('investrack_token_refreshed', { detail: data.access_token }))
+
+        const newHeaders = new Headers(options.headers)
+        newHeaders.set('Authorization', `Bearer ${data.access_token}`)
+        res = await fetch(url, { ...options, headers: newHeaders })
+      } else {
+        window.dispatchEvent(new Event('investrack_force_logout'))
+      }
+    } else {
+      window.dispatchEvent(new Event('investrack_force_logout'))
+    }
+  }
+
+  return res
 }
 
 // --- Companies ---
@@ -300,7 +348,7 @@ export async function fetchPostReactions(id: string, token?: string): Promise<Po
   const headers: HeadersInit = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
   
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/reactions`, {
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/${id}/reactions`, {
     headers,
     cache: 'no-store'
   })
@@ -312,7 +360,7 @@ export async function fetchPostComments(postId: string, token?: string): Promise
   const headers: Record<string, string> = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
   
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/${postId}/comments`, {
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/${postId}/comments`, {
     headers,
     cache: 'no-store'
   })
@@ -336,6 +384,18 @@ export async function fetchFounders(): Promise<Founder[]> {
   const data = await apiFetch<unknown[]>('/user/founders')
   if (!data || !Array.isArray(data)) return []
   return data.map(mapFounder)
+}
+
+export async function fetchFounder(id: string): Promise<Founder | null> {
+  const data = await apiFetch<unknown>(`/user/founders/${id}`)
+  if (!data) return null
+  return mapFounder(data)
+}
+
+export async function fetchFounderCompanies(founderId: string): Promise<Company[]> {
+  const data = await apiFetch<unknown[]>(`/user/founders/${founderId}/companies`)
+  if (!data || !Array.isArray(data)) return []
+  return data.map(mapCompany)
 }
 
 // --- Funding Rounds ---
@@ -386,11 +446,15 @@ export async function fetchFeaturedCompanies(limit: number = 3): Promise<Company
 // --- Management APIs ---
 
 export async function fetchMyPosts(token: string): Promise<FundraisingPost[]> {
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/my-posts`, {
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/my-posts`, {
     headers: { 'Authorization': `Bearer ${token}` },
     cache: 'no-store'
   })
-  if (!res.ok) throw new Error('Failed to fetch my posts')
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => 'No body')
+    console.error(`[fetchMyPosts] Failed with status ${res.status}: ${errorBody}`)
+    throw new Error('Failed to fetch my posts')
+  }
   const data = await res.json()
   return data.map((p: any) => ({
     id: p.id,
@@ -417,7 +481,7 @@ export async function fetchMyPosts(token: string): Promise<FundraisingPost[]> {
 }
 
 export async function updateFundraisingPost(id: string, token: string, payload: Record<string, any>) {
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}`, {
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/${id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -434,7 +498,7 @@ export async function updateFundraisingPost(id: string, token: string, payload: 
 }
 
 export async function repostFundraisingPost(id: string, token: string) {
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/repost`, {
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/${id}/repost`, {
     method: 'PATCH',
     headers: { 'Authorization': `Bearer ${token}` }
   })
@@ -443,7 +507,7 @@ export async function repostFundraisingPost(id: string, token: string) {
 }
 
 export async function cancelFundraisingPost(id: string, token: string) {
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/${id}/cancel`, {
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/${id}/cancel`, {
     method: 'PATCH',
     headers: { 'Authorization': `Bearer ${token}` }
   })

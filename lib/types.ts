@@ -23,9 +23,20 @@ export interface Company {
   contactEmail: string
   foundedDate: string | null
   status: 'Approved' | 'Pending' | 'Rejected'
+  operatingStatus: string
   viewCount: number
   logoUrl: string | null
   websiteUrl: string | null
+  facebookUrl: string | null
+  linkedinUrl: string | null
+  registrationNumber: string | null
+  taxId: string | null
+  employeeCount: string | null
+  branchCount: number | null
+  headquartersAddress: string | null
+  keyProducts: string[]
+  keyPartners: string[]
+  founderRole?: string
   approvedBy: string | null
   createdAt: string
   updatedAt: string
@@ -33,9 +44,11 @@ export interface Company {
 
 export interface Founder {
   id: string
-  name: string
-  bio: string | null
-  linkedinUrl: string | null
+  nameEn: string
+  nameLa: string
+  bio?: string
+  linkedinUrl?: string
+  role?: string
   createdAt: string
   updatedAt: string
 }
@@ -136,11 +149,14 @@ export interface CompanyFound {
 export interface Investment {
   id: string
   companyId: string
-  investorId: string
+  investorId: string | null
+  customInvestorName?: string
   roundId: string
   amount: number
   currency: string
   investDate: string
+  status?: string
+  referenceUrl?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -173,7 +189,7 @@ export interface FounderWithRole extends Founder {
 }
 
 export interface InvestmentWithDetails extends Investment {
-  investor: Investor
+  investor: Investor | null
   round: FundingRound
 }
 

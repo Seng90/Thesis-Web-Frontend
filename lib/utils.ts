@@ -47,12 +47,27 @@ export function getYear(dateString: string | null): string {
  * Get initials from a name (for avatar)
  */
 export function getInitials(name: string): string {
+  if (!name) return '?'
   return name
     .split(' ')
     .map((word) => word[0])
     .join('')
     .toUpperCase()
     .slice(0, 2)
+}
+
+/**
+ * Format image URL (handles relative paths from backend)
+ */
+export function getImageUrl(path: string | null): string {
+  if (!path) return ''
+  if (path.startsWith('http') || path.startsWith('data:')) return path
+  
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+  const baseUrl = apiUrl.replace(/\/api$/, '')
+  
+  const cleanPath = path.startsWith('/') ? path : `/uploads/${path}`
+  return `${baseUrl}${cleanPath}`
 }
 
 /**
@@ -69,6 +84,7 @@ export function getNameColor(name: string): string {
     'from-amber-500 to-orange-500',
     'from-cyan-500 to-blue-500',
   ]
+  if (!name) return colors[0]
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)

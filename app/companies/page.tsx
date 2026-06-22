@@ -1,26 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { fetchCompanies, fetchInvestments } from '@/lib/api'
 import type { Company, Investment } from '@/lib/types'
 import SearchBar from '@/components/ui/SearchBar'
 import CompanyCard from '@/components/cards/CompanyCard'
 import { Building2, Banknote } from 'lucide-react'
 
-const industries = [
-  'All',
-  'FinTech',
-  'AgriTech',
-  'EdTech',
-  'HealthTech',
-  'Logistics',
-  'Tourism Tech',
-  'E-Commerce',
-  'SaaS',
-]
 
-export default function CompaniesPage() {
-  const [searchQuery, setSearchQuery] = useState('')
+
+function CompaniesContent() {
+  const searchParams = useSearchParams()
+  const initialQuery = searchParams.get('q') || ''
+  const [searchQuery, setSearchQuery] = useState(initialQuery)
   const [activeFilter, setActiveFilter] = useState('All')
   const [allCompanies, setAllCompanies] = useState<Company[]>([])
   const [totalFundedUSD, setTotalFundedUSD] = useState(0)
@@ -49,6 +42,8 @@ export default function CompaniesPage() {
   }, [])
 
   const approvedCompanies = allCompanies.filter(c => c.status === 'Approved')
+  const availableIndustries = Array.from(new Set(approvedCompanies.map(c => c.industry))).filter(Boolean).sort()
+  const filterOptions = ['All', ...availableIndustries]
 
   const filteredCompanies = allCompanies.filter((company) => {
     const matchesSearch = company.name
@@ -119,28 +114,42 @@ export default function CompaniesPage() {
               <SearchBar 
                 onSearch={setSearchQuery} 
                 placeholder="Search companies by name..." 
+                defaultValue={initialQuery}
               />
             </div>
             
-            <div className="flex flex-wrap gap-2">
-              {industries.map((industry) => (
+            <div className="w-full md:w-auto shrink-0 flex gap-2">
+              <select
+                value={activeFilter}
+                onChange={(e) => setActiveFilter(e.target.value)}
+                suppressHydrationWarning
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-surface-700 bg-white dark:bg-surface-800 text-slate-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors cursor-pointer appearance-none"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+              >
+                {filterOptions.map((type) => (
+                  <option key={type} value={type}>
+                    {type === 'All' ? 'All Industries' : type}
+                  </option>
+                ))}
+              </select>
+              {(searchQuery !== '' || activeFilter !== 'All') && (
                 <button
-                  key={industry}
-                  onClick={() => setActiveFilter(industry)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    activeFilter === industry
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  onClick={() => {
+                    setSearchQuery('')
+                    setActiveFilter('All')
+                    // Also clear URL params if necessary
+                    window.history.replaceState({}, '', '/companies')
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-surface-700 bg-white dark:bg-surface-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-surface-700 transition-colors"
                 >
-                  {industry}
+                  Reset
                 </button>
-              ))}
+              )}
             </div>
           </div>
           
-          <div className="text-sm text-slate-500 mb-6">
-            Showing <span className="font-semibold text-slate-700">{filteredCompanies.length}</span> results
+          <div className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+            Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{filteredCompanies.length}</span> results
           </div>
         </div>
 
@@ -148,7 +157,7 @@ export default function CompaniesPage() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-slate-100 h-64 rounded-2xl border border-slate-200"></div>
+              <div key={i} className="animate-pulse bg-slate-100 dark:bg-surface-800 h-64 rounded-2xl border border-slate-200 dark:border-surface-700"></div>
             ))}
           </div>
         ) : filteredCompanies.length > 0 ? (
@@ -158,12 +167,12 @@ export default function CompaniesPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200/60 shadow-sm">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="text-center py-20 bg-white dark:bg-surface-800 rounded-2xl border border-slate-200/60 dark:border-surface-700 shadow-sm">
+            <div className="w-16 h-16 bg-slate-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🔍</span>
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No companies found</h3>
-            <p className="text-slate-500">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No companies found</h3>
+            <p className="text-slate-500 dark:text-slate-400">
               We couldn&apos;t find any companies matching your search criteria. Try adjusting your filters.
             </p>
             <button 
@@ -171,7 +180,7 @@ export default function CompaniesPage() {
                 setSearchQuery('')
                 setActiveFilter('All')
               }}
-              className="mt-6 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg font-medium hover:bg-indigo-100 transition-colors"
+              className="mt-6 px-4 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg font-medium hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors"
             >
               Clear filters
             </button>
@@ -179,5 +188,66 @@ export default function CompaniesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function CompaniesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="animate-fade-in">
+          {/* Hero skeleton */}
+          <section
+            className="relative overflow-hidden"
+            style={{
+              background:
+                'linear-gradient(135deg, #172645 0%, #1e3a5f 50%, #172645 100%)',
+            }}
+          >
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 text-center">
+              <div className="h-6 w-56 mx-auto rounded-full bg-white/10 animate-pulse mb-5" />
+              <div className="h-9 w-48 mx-auto rounded-lg bg-white/10 animate-pulse mb-3" />
+              <div className="h-5 w-96 max-w-full mx-auto rounded-lg bg-white/10 animate-pulse mb-8" />
+
+              <div className="max-w-lg mx-auto">
+                <div className="grid grid-cols-2 gap-3">
+                  {[0, 1].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 px-4 py-3.5 h-[62px] animate-pulse"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Content skeleton */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="mb-10">
+              <div className="h-12 w-full max-w-md rounded-full bg-slate-100 dark:bg-surface-800 animate-pulse mb-8" />
+              <div className="flex flex-wrap gap-2 mb-8">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-9 w-20 rounded-full bg-slate-100 dark:bg-surface-800 animate-pulse"
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="animate-pulse bg-slate-100 dark:bg-surface-800 h-64 rounded-2xl border border-slate-200 dark:border-surface-700"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <CompaniesContent />
+    </Suspense>
   )
 }

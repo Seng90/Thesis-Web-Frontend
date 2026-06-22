@@ -86,16 +86,16 @@ export default function Home() {
             <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-amber-400/30 via-white/20 to-amber-400/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500"></div>
-                <div className="relative flex items-center bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl shadow-indigo-900/30">
+                <div className="relative flex items-center bg-white/95 dark:bg-surface-800/95 backdrop-blur-md rounded-2xl shadow-2xl shadow-indigo-900/30 dark:shadow-indigo-500/10">
                   <div className="pl-5">
-                    <Search className="w-5 h-5 text-slate-400" />
+                    <Search className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                   </div>
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search companies, industries, or investors..."
-                    className="flex-1 px-4 py-4.5 bg-transparent text-slate-800 placeholder:text-slate-400 text-base outline-none"
+                    className="flex-1 px-4 py-4.5 bg-transparent text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-base outline-none"
                     id="hero-search"
                   />
                   <button
@@ -113,50 +113,50 @@ export default function Home() {
 
         {/* Stats Row — white bg strip within the gradient section */}
         <div className="relative z-10 mt-6">
-          <div className="bg-white">
+          <div className="bg-white dark:bg-slate-950">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {/* Stat 1 — Companies */}
-                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:shadow-md hover:border-indigo-100 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
-                    <Building2 className="w-6 h-6 text-indigo-600" />
+                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-surface-800 border border-slate-100 dark:border-surface-700 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-500/50 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center shrink-0">
+                    <Building2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div>
-                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 ${isLoading ? 'animate-pulse' : ''}`}>{stats.totalCompanies}</p>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Total Companies</p>
+                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white ${isLoading ? 'animate-pulse' : ''}`}>{stats.totalCompanies}</p>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">Total Companies</p>
                   </div>
                 </div>
 
                 {/* Stat 2 — Investors */}
-                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:shadow-md hover:border-purple-100 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
-                    <Users className="w-6 h-6 text-purple-600" />
+                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-surface-800 border border-slate-100 dark:border-surface-700 hover:shadow-md hover:border-purple-100 dark:hover:border-purple-500/50 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center shrink-0">
+                    <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
-                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 ${isLoading ? 'animate-pulse' : ''}`}>{stats.totalInvestors}</p>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Total Investors</p>
+                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white ${isLoading ? 'animate-pulse' : ''}`}>{stats.totalInvestors}</p>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">Total Investors</p>
                   </div>
                 </div>
 
                 {/* Stat 3 — Funding Rounds */}
-                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:shadow-md hover:border-emerald-100 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-                    <TrendingUp className="w-6 h-6 text-emerald-600" />
+                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-surface-800 border border-slate-100 dark:border-surface-700 hover:shadow-md hover:border-emerald-100 dark:hover:border-emerald-500/50 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 ${isLoading ? 'animate-pulse' : ''}`}>{stats.totalFundingRounds}</p>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Funding Rounds</p>
+                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white ${isLoading ? 'animate-pulse' : ''}`}>{stats.totalFundingRounds}</p>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">Funding Rounds</p>
                   </div>
                 </div>
 
                 {/* Stat 4 — Total Funding */}
-                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                    <Banknote className="w-6 h-6 text-blue-600" />
+                <div className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-surface-800 border border-slate-100 dark:border-surface-700 hover:shadow-md hover:border-blue-100 dark:hover:border-blue-500/50 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center shrink-0">
+                    <Banknote className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 ${isLoading ? 'animate-pulse' : ''}`}>${stats.totalFundingUSD.toLocaleString()}</p>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Total Funding</p>
+                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white ${isLoading ? 'animate-pulse' : ''}`}>${stats.totalFundingUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">Total Funding</p>
                   </div>
                 </div>
               </div>
@@ -168,8 +168,8 @@ export default function Home() {
       {/* Featured Companies Section */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Featured Startups</h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Featured Startups</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Discover the most viewed and trending startups building innovative solutions in Laos.
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function Home() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-slate-100 h-64 rounded-2xl border border-slate-200"></div>
+              <div key={i} className="animate-pulse bg-slate-100 dark:bg-surface-800 h-64 rounded-2xl border border-slate-200 dark:border-surface-700"></div>
             ))}
           </div>
         ) : (
@@ -199,37 +199,37 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 bg-slate-50 border-y border-slate-200/60">
+      <section className="py-24 bg-slate-50 dark:bg-surface-900 border-y border-slate-200/60 dark:border-surface-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-16">How It Works</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-16">How It Works</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="flex flex-col items-center">
-              <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                <Search className="w-10 h-10 text-indigo-600" />
+              <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-500/20 rounded-full flex items-center justify-center mb-6 shadow-sm dark:shadow-none">
+                <Search className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">1. Search & Filter</h3>
-              <p className="text-slate-600 leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">1. Search & Filter</h3>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 Find companies and investors by industry, funding stage, or location using our advanced search tools.
               </p>
             </div>
             
             <div className="flex flex-col items-center">
-              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                <Rocket className="w-10 h-10 text-purple-600" />
+              <div className="w-20 h-20 bg-purple-100 dark:bg-purple-500/20 rounded-full flex items-center justify-center mb-6 shadow-sm dark:shadow-none">
+                <Rocket className="w-10 h-10 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">2. Discover Insights</h3>
-              <p className="text-slate-600 leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">2. Discover Insights</h3>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 Access deep data on funding rounds, team members, and portfolio companies to understand market trends.
               </p>
             </div>
             
             <div className="flex flex-col items-center">
-              <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                <Users className="w-10 h-10 text-emerald-600" />
+              <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 shadow-sm dark:shadow-none">
+                <Users className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">3. Connect & Grow</h3>
-              <p className="text-slate-600 leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">3. Connect & Grow</h3>
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 Reach out directly to founders and investors to build partnerships or explore investment opportunities.
               </p>
             </div>

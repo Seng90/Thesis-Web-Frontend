@@ -55,7 +55,7 @@ export default function DashboardClient({ stats, fundingOverTime, sectorDistribu
             Cumulative Funding Over Time
           </h2>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <AreaChart data={fundingOverTime}>
                 <defs>
                   <linearGradient id="gradFunding" x1="0" y1="0" x2="0" y2="1">
@@ -82,7 +82,7 @@ export default function DashboardClient({ stats, fundingOverTime, sectorDistribu
             Funding by Sector
           </h2>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <PieChart>
                 <Pie
                   data={sectorDistribution}

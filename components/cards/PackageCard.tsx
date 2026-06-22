@@ -25,10 +25,10 @@ export default function PackageCard({ pkg, isPopular = false }: PackageCardProps
 
   return (
     <div
-      className={`relative rounded-2xl border bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+      className={`relative rounded-2xl border bg-white dark:bg-surface-800 p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
         isPopular
-          ? 'border-indigo-200 ring-2 ring-indigo-500 shadow-lg shadow-indigo-100/50'
-          : 'border-slate-200/60 shadow-sm'
+          ? 'border-indigo-200 dark:border-indigo-500/30 ring-2 ring-indigo-500 shadow-lg shadow-indigo-100/50 dark:shadow-indigo-500/20'
+          : 'border-slate-200/60 dark:border-surface-700 shadow-sm'
       }`}
     >
       {/* Popular Badge */}
@@ -43,17 +43,17 @@ export default function PackageCard({ pkg, isPopular = false }: PackageCardProps
 
       {/* Header */}
       <div className={isPopular ? 'mt-2' : ''}>
-        <h3 className="text-xl font-bold text-slate-900">{pkg.name}</h3>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{pkg.name}</h3>
         <div className="mt-4 flex items-baseline gap-1">
-          <span className="text-4xl font-extrabold tracking-tight text-slate-900">
+          <span className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             {formatCurrency(pkg.price, 'LAK')}
           </span>
-          <span className="text-sm font-medium text-slate-500">/month</span>
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">/month</span>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="my-6 h-px bg-slate-100" />
+      <div className="my-6 h-px bg-slate-100 dark:bg-surface-700" />
 
       {/* Features */}
       <ul className="space-y-3">
@@ -64,7 +64,7 @@ export default function PackageCard({ pkg, isPopular = false }: PackageCardProps
                 isPopular ? 'text-indigo-500' : 'text-emerald-500'
               }`}
             />
-            <span className="text-sm text-slate-600">{feature}</span>
+            <span className="text-sm text-slate-600 dark:text-slate-400">{feature}</span>
           </li>
         ))}
       </ul>
@@ -82,7 +82,7 @@ export default function PackageCard({ pkg, isPopular = false }: PackageCardProps
       </div>
 
       {/* Purchase count */}
-      <p className="mt-4 text-center text-xs text-slate-400">
+      <p className="mt-4 text-center text-xs text-slate-400 dark:text-slate-500">
         {pkg.purchaseCount.toLocaleString()} businesses subscribed
       </p>
     </div>

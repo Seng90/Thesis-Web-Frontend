@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { fetchCompany } from '@/lib/api'
 import type { Company, CompanyWithRelations } from '@/lib/types'
 import { Building2, Banknote, Users, Calendar, MapPin, ArrowRightLeft, LayoutGrid } from 'lucide-react'
@@ -8,6 +8,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts'
+import CompanyLogo from '@/components/ui/CompanyLogo'
 
 interface CompareToolProps {
   companies: Company[]
@@ -170,32 +171,20 @@ export default function CompareTool({ companies }: CompareToolProps) {
         <div className="p-6 md:p-8">
           <label className="block text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Company A</label>
           <div className="relative">
-            <select
-              className="w-full appearance-none bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3.5 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition-all"
-              value={companyAId}
-              onChange={(e) => setCompanyAId(e.target.value)}
-            >
-              <option value="">Select a company...</option>
-              {companies.map(c => (
-                <option key={c.id} value={c.id} disabled={c.id === companyBId}>{c.name}</option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
-              <Building2 className="w-5 h-5" />
-            </div>
+            <CompanySearchDropdown
+              companies={companies}
+              selectedId={companyAId}
+              onSelect={setCompanyAId}
+              disabledId={companyBId}
+              placeholder="Select a company..."
+            />
           </div>
           
           {loadingA && <div className="mt-4 h-1 w-full bg-indigo-100 rounded overflow-hidden"><div className="h-full bg-indigo-500 w-1/2 animate-pulse"></div></div>}
           
           {companyAData && !loadingA && (
             <div className="mt-6 flex items-center gap-4">
-              {companyAData.logoUrl ? (
-                <img src={companyAData.logoUrl} alt={companyAData.name} className="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 bg-white" />
-              ) : (
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-sm">
-                  {companyAData.name.charAt(0)}
-                </div>
-              )}
+              <CompanyLogo logoUrl={companyAData.logoUrl} name={companyAData.name} size="lg" />
               <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white">{companyAData.name}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
@@ -210,32 +199,20 @@ export default function CompareTool({ companies }: CompareToolProps) {
         <div className="p-6 md:p-8">
           <label className="block text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Company B</label>
           <div className="relative">
-            <select
-              className="w-full appearance-none bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3.5 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition-all"
-              value={companyBId}
-              onChange={(e) => setCompanyBId(e.target.value)}
-            >
-              <option value="">Select a company...</option>
-              {companies.map(c => (
-                <option key={c.id} value={c.id} disabled={c.id === companyAId}>{c.name}</option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
-              <Building2 className="w-5 h-5" />
-            </div>
+            <CompanySearchDropdown
+              companies={companies}
+              selectedId={companyBId}
+              onSelect={setCompanyBId}
+              disabledId={companyAId}
+              placeholder="Select a company..."
+            />
           </div>
           
           {loadingB && <div className="mt-4 h-1 w-full bg-purple-100 rounded overflow-hidden"><div className="h-full bg-purple-500 w-1/2 animate-pulse"></div></div>}
           
           {companyBData && !loadingB && (
             <div className="mt-6 flex items-center gap-4">
-              {companyBData.logoUrl ? (
-                <img src={companyBData.logoUrl} alt={companyBData.name} className="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 bg-white" />
-              ) : (
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-sm">
-                  {companyBData.name.charAt(0)}
-                </div>
-              )}
+              <CompanyLogo logoUrl={companyBData.logoUrl} name={companyBData.name} size="lg" />
               <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white">{companyBData.name}</h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
@@ -288,7 +265,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Overall Comparison (Relative Score)</h4>
               <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                     <PolarGrid stroke="#cbd5e1" strokeDasharray="3 3" />
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
@@ -307,7 +284,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Funding by Year ($M)</h4>
               {fundingByYearData.length > 0 ? (
                 <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <BarChart data={fundingByYearData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
@@ -357,6 +334,102 @@ function ComparisonRow({
       <div className={`text-center md:text-left font-medium text-lg ${isB_Max ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-700 dark:text-slate-300'}`}>
         {valB}
       </div>
+    </div>
+  )
+}
+
+function CompanySearchDropdown({
+  companies,
+  selectedId,
+  onSelect,
+  disabledId,
+  placeholder = "Select a company..."
+}: {
+  companies: Company[]
+  selectedId: string
+  onSelect: (id: string) => void
+  disabledId?: string
+  placeholder?: string
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const filteredCompanies = companies.filter(c => 
+    c.name.toLowerCase().includes(query.toLowerCase())
+  )
+
+  const selectedCompany = companies.find(c => c.id === selectedId)
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div 
+        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3.5 pr-10 focus-within:ring-2 focus-within:ring-indigo-500 font-medium transition-all cursor-pointer flex items-center justify-between"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className={selectedCompany ? "" : "text-slate-500"}>
+          {selectedCompany ? selectedCompany.name : placeholder}
+        </span>
+        <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+          <Building2 className="w-5 h-5" />
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+          <div className="sticky top-0 p-2 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+            <input
+              type="text"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+              placeholder="Search companies..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          <div className="py-1">
+            {filteredCompanies.length === 0 ? (
+              <div className="px-4 py-3 text-sm text-slate-500 text-center">No companies found</div>
+            ) : (
+              filteredCompanies.map(c => {
+                const isDisabled = c.id === disabledId
+                return (
+                  <div
+                    key={c.id}
+                    className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                      isDisabled 
+                        ? 'text-slate-400 dark:text-slate-600 cursor-not-allowed bg-slate-50 dark:bg-slate-900/50' 
+                        : c.id === selectedId
+                          ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (!isDisabled) {
+                        onSelect(c.id)
+                        setIsOpen(false)
+                        setQuery('')
+                      }
+                    }}
+                  >
+                    {c.name}
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
