@@ -16,8 +16,13 @@ export default function MyPostsPage() {
   const [cancelingId, setCancelingId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login?redirect=/raises/my-posts')
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login?redirect=/raises/my-posts')
+      } else if (user.role !== 'Founder') {
+        alert('ທ່ານຕ້ອງເປັນ Founder ຈຶ່ງສາມາດເຂົ້າເຖິງໄດ້')
+        router.push('/')
+      }
     }
   }, [user, isLoading, router])
 
@@ -43,9 +48,12 @@ export default function MyPostsPage() {
     try {
       await cancelFundraisingPost(id, token!)
       setPosts(prev => prev.map(p => p.id === id ? { ...p, status: 'Cancelled' } : p))
-    } catch (err) {
-      console.error(err)
-      alert('Failed to cancel post')
+    } catch (err: any) {
+      if (err.message && err.message.includes('403')) {
+        alert('ສິດທິຂອງທ່ານບໍ່ພຽງພໍສຳລັບການກະທຳນີ້')
+      } else {
+        alert('Failed to cancel post')
+      }
     } finally {
       setCancelingId(null)
     }

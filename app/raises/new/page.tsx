@@ -42,10 +42,15 @@ export default function PostRaisePage() {
     coverUrl: '',
   })
 
-  // Auth Guard: Redirect if not logged in
+  // Auth Guard: Redirect if not logged in or not Founder
   useEffect(() => {
-    if (!isAuthLoading && !user) {
-      router.push('/login?redirect=/raises/new')
+    if (!isAuthLoading) {
+      if (!user) {
+        router.push('/login?redirect=/raises/new')
+      } else if (user.role !== 'Founder') {
+        alert('ທ່ານຕ້ອງເປັນ Founder ຈຶ່ງສາມາດເຂົ້າເຖິງໄດ້')
+        router.push('/')
+      }
     }
   }, [user, isAuthLoading, router])
 
@@ -151,7 +156,10 @@ export default function PostRaisePage() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => null)
-        throw new Error(errorData?.message || 'Failed to create post')
+        if (res.status === 403) {
+          alert('ສິດທິຂອງທ່ານບໍ່ພຽງພໍສຳລັບການກະທຳນີ້')
+        }
+        throw new Error(errorData?.message || 'Failed to submit post')
       }
 
       setSuccess(true)

@@ -74,6 +74,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
 
     return {
       totalFunding,
+      formattedFunding: totalFunding > 0 ? formatCurrency(totalFunding) : (companyAData.investments.length > 0 ? 'Undisclosed' : '$0'),
       founded: companyAData.foundedDate ? new Date(companyAData.foundedDate).getFullYear() : 'N/A',
       stage,
       sector: companyAData.industry || 'N/A',
@@ -98,6 +99,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
 
     return {
       totalFunding,
+      formattedFunding: totalFunding > 0 ? formatCurrency(totalFunding) : (companyBData.investments.length > 0 ? 'Undisclosed' : '$0'),
       founded: companyBData.foundedDate ? new Date(companyBData.foundedDate).getFullYear() : 'N/A',
       stage,
       sector: companyBData.industry || 'N/A',
@@ -250,7 +252,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
             <div className="grid grid-cols-3 bg-slate-50/50 dark:bg-slate-900/20 py-4 px-6 md:px-8">
               <div className="col-span-3 text-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Key Metrics</div>
             </div>
-            <ComparisonRow label="Total Funding" icon={<Banknote className="w-4 h-4" />} valA={formatCurrency(metricsA.totalFunding)} valB={formatCurrency(metricsB.totalFunding)} highlightMax={metricsA.totalFunding !== metricsB.totalFunding} isNumber valANum={metricsA.totalFunding} valBNum={metricsB.totalFunding} />
+            <ComparisonRow label="Total Funding" icon={<Banknote className="w-4 h-4" />} valA={metricsA.formattedFunding} valB={metricsB.formattedFunding} highlightMax={metricsA.totalFunding !== metricsB.totalFunding} isNumber valANum={metricsA.totalFunding} valBNum={metricsB.totalFunding} />
             <ComparisonRow label="Founded" icon={<Calendar className="w-4 h-4" />} valA={metricsA.founded.toString()} valB={metricsB.founded.toString()} />
             <ComparisonRow label="Stage" icon={<ArrowRightLeft className="w-4 h-4" />} valA={metricsA.stage} valB={metricsB.stage} />
             <ComparisonRow label="Sector" icon={<LayoutGrid className="w-4 h-4" />} valA={metricsA.sector} valB={metricsB.sector} />
@@ -265,7 +267,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Overall Comparison (Relative Score)</h4>
               <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                   <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                     <PolarGrid stroke="#cbd5e1" strokeDasharray="3 3" />
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
@@ -284,7 +286,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Funding by Year ($M)</h4>
               {fundingByYearData.length > 0 ? (
                 <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                     <BarChart data={fundingByYearData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />

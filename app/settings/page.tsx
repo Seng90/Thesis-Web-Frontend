@@ -19,7 +19,7 @@ export default function SettingsPage() {
   const [isFetchingProfile, setIsFetchingProfile] = useState(true)
 
   // Profile Form State
-  const [profileData, setProfileData] = useState({ username: '', email: '', avatarUrl: '', role: '', packageId: '' })
+  const [profileData, setProfileData] = useState({ username: '', email: '', avatarUrl: '', role: '', packageId: '', status: '' })
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const [profileMsg, setProfileMsg] = useState({ type: '', text: '' })
@@ -51,7 +51,8 @@ export default function SettingsPage() {
             email: data.email || '',
             avatarUrl: data.avatarUrl || data.avatar_url || '',
             role: data.role || 'Member',
-            packageId: data.packageId || 'Free Plan'
+            packageId: data.packageId || 'Free Plan',
+            status: data.status || 'Active'
           })
           // Update global context silently in case avatar changed elsewhere
           updateUser({
@@ -241,12 +242,14 @@ export default function SettingsPage() {
               
               <div className="my-2 border-t border-surface-200 dark:border-white/5"></div>
               
-              <Link
-                href="/raises/my-posts"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-white/5"
-              >
-                <LayoutList className="w-4 h-4" /> My Posts
-              </Link>
+              {user?.role === 'Founder' && (
+                <Link
+                  href="/raises/my-posts"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-white/5"
+                >
+                  <LayoutList className="w-4 h-4" /> My Posts
+                </Link>
+              )}
             </nav>
           </div>
 

@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import { Plus, Search } from 'lucide-react'
 import Link from 'next/link'
+import { useAuth } from '@/lib/auth'
 import type { FundraisingPost } from '@/lib/types'
 import RaiseCard from '@/components/cards/RaiseCard'
 
 export default function RaisesClient({ posts }: { posts: FundraisingPost[] }) {
+  const { user } = useAuth()
   const [q, setQ] = useState('')
 
   const filtered = posts.filter((p) => {
@@ -41,13 +43,15 @@ export default function RaisesClient({ posts }: { posts: FundraisingPost[] }) {
               </p>
             </div>
             
-            <Link
-              href="/raises/new"
-              className="inline-flex h-12 items-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
-            >
-              <Plus className="h-5 w-5" />
-              Post a Raise
-            </Link>
+            {user?.role === 'Founder' && (
+              <Link
+                href="/raises/new"
+                className="inline-flex h-12 items-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+              >
+                <Plus className="h-5 w-5" />
+                Post a Raise
+              </Link>
+            )}
           </div>
         </div>
       </section>

@@ -65,7 +65,7 @@ export default async function PricingPage() {
       </section>
 
       {/* Plans Section */}
-      <section className="container mx-auto px-4 py-20">
+      <section id="plans" className="container mx-auto px-4 py-20">
         <div className={`mx-auto grid max-w-6xl gap-8 ${pkgList.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
           {pkgList.map((pkg, idx) => {
             const popular = isPro(pkg.name) && idx === 1;
@@ -222,7 +222,7 @@ export default async function PricingPage() {
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/signup"
+              href="#plans"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 text-sm font-bold text-white shadow-md shadow-indigo-200 dark:shadow-none transition-all hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-lg"
             >
               Start your Membership
