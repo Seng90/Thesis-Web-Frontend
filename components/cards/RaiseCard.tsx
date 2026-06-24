@@ -4,10 +4,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export default function RaiseCard({ post, priority = false }: { post: FundraisingPost; priority?: boolean }) {
-  const isExpired = new Date(post.deadline) < new Date()
+  const isExpired = post.status === 'Expired' || new Date(post.deadline) < new Date()
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <div className={`group flex flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${isExpired ? 'grayscale opacity-75' : ''}`}>
       
       {/* Cover Image */}
       <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
@@ -30,7 +30,7 @@ export default function RaiseCard({ post, priority = false }: { post: Fundraisin
         </div>
         {isExpired && (
           <div className="absolute right-4 top-4 rounded-full bg-red-500/90 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm shadow-sm">
-            Closed
+            Expired
           </div>
         )}
       </div>

@@ -33,25 +33,37 @@ export default function InvestorCard({ investor }: InvestorCardProps) {
         </div>
 
         {/* Details */}
-        <div className="mt-5 space-y-2 border-t border-slate-100 dark:border-surface-700 pt-4">
-          {investor.websiteUrl && (
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-              <Globe className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
-              <span className="truncate transition-colors duration-200 group-hover:text-indigo-500 dark:group-hover:text-indigo-400">
-                {investor.websiteUrl.replace(/^https?:\/\//, '')}
-              </span>
+        <div className="mt-5 space-y-3 border-t border-slate-100 dark:border-surface-700 pt-4">
+          <div className="space-y-2">
+            {investor.websiteUrl && (
+              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                <Globe className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
+                <span className="truncate transition-colors duration-200 group-hover:text-indigo-500 dark:group-hover:text-indigo-400">
+                  {investor.websiteUrl.replace(/^https?:\/\//, '')}
+                </span>
+              </div>
+            )}
+            {investor.contactInfo && (
+              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                <Mail className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
+                <span className="truncate">{investor.contactInfo}</span>
+              </div>
+            )}
+            {!investor.websiteUrl && !investor.contactInfo && (
+              <p className="text-sm italic text-slate-400 dark:text-slate-500">
+                No contact information available
+              </p>
+            )}
+          </div>
+          
+          {investor.preferredStages && investor.preferredStages.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {investor.preferredStages.map((stage) => (
+                <span key={stage} className="inline-flex items-center rounded-md bg-slate-100 dark:bg-surface-700 px-2 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {stage}
+                </span>
+              ))}
             </div>
-          )}
-          {investor.contactInfo && (
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-              <Mail className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
-              <span className="truncate">{investor.contactInfo}</span>
-            </div>
-          )}
-          {!investor.websiteUrl && !investor.contactInfo && (
-            <p className="text-sm italic text-slate-400 dark:text-slate-500">
-              No contact information available
-            </p>
           )}
         </div>
       </div>

@@ -39,11 +39,48 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{displayName}</h1>
             {founder.bio && <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed mb-4">{founder.bio}</p>}
-            {founder.linkedinUrl && (
-              <a href={founder.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors">
-                <ExternalLink className="w-4 h-4" /> LinkedIn Profile <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
+            
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Past Experience</h3>
+              {founder.pastExperience ? (
+                <p className="text-slate-700 dark:text-slate-300">{founder.pastExperience}</p>
+              ) : (
+                <p className="text-slate-400 dark:text-slate-500 italic text-sm">Not specified</p>
+              )}
+            </div>
+            
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Skills & Expertise</h3>
+              {founder.skills && founder.skills.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {founder.skills.map(skill => (
+                    <span key={skill} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg text-sm font-medium">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-400 dark:text-slate-500 italic text-sm">Not specified</p>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-3 mt-4">
+              {founder.linkedinUrl && (
+                <a href={founder.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors">
+                  <ExternalLink className="w-4 h-4" /> LinkedIn
+                </a>
+              )}
+              {founder.twitterUrl && (
+                <a href={founder.twitterUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-lg text-sm font-medium hover:bg-sky-100 dark:hover:bg-sky-500/20 transition-colors">
+                  <ExternalLink className="w-4 h-4" /> Twitter / X
+                </a>
+              )}
+              {founder.githubUrl && (
+                <a href={founder.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-surface-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-surface-600 transition-colors">
+                  <ExternalLink className="w-4 h-4" /> GitHub
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -98,6 +98,54 @@ export default async function InvestorDetailPage({
       {/* Main Content */}
       <div className="space-y-12">
         
+        {/* About Section */}
+        <section className="bg-white dark:bg-surface-800 rounded-3xl border border-slate-200/60 dark:border-surface-700 shadow-sm p-8">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">About</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Investment Focus</h3>
+              {investor.investmentFocus ? (
+                <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{investor.investmentFocus}</p>
+              ) : (
+                <p className="text-slate-400 dark:text-slate-500 italic">No investment focus specified.</p>
+              )}
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Preferred Stages</h3>
+                {investor.preferredStages && investor.preferredStages.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {investor.preferredStages.map(stage => (
+                      <span key={stage} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg text-sm font-medium">
+                        {stage}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 dark:text-slate-500 italic text-sm">Not specified</p>
+                )}
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Preferred Industries</h3>
+                {investor.preferredIndustries && investor.preferredIndustries.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {investor.preferredIndustries.map(ind => (
+                      <span key={ind} className="px-3 py-1 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 rounded-lg text-sm font-medium">
+                        {ind}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 dark:text-slate-500 italic text-sm">Not specified</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+        
         {/* Portfolio Section */}
         {portfolioCompanies.length > 0 && (
           <section>

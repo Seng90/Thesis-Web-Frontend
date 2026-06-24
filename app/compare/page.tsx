@@ -1,5 +1,6 @@
 import { fetchCompanies } from '@/lib/api'
 import CompareTool from './CompareTool'
+import PremiumGuard from '@/components/auth/PremiumGuard'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -14,8 +15,9 @@ export default async function ComparePage() {
   const approvedCompanies = allCompanies.filter(c => c.status === 'Approved')
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+    <PremiumGuard>
+      <div className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto">
         
         {/* Header */}
         <div className="text-center mb-12 animate-slide-up">
@@ -29,8 +31,8 @@ export default async function ComparePage() {
 
         {/* Comparison Tool */}
         <CompareTool companies={approvedCompanies} />
-        
+              </div>
       </div>
-    </div>
+    </PremiumGuard>
   )
 }

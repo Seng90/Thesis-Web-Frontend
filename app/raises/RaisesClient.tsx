@@ -12,7 +12,7 @@ export default function RaisesClient({ posts }: { posts: FundraisingPost[] }) {
   const [q, setQ] = useState('')
 
   const filtered = posts.filter((p) => {
-    if (p.status !== 'Active') return false
+    if (p.status !== 'Active' && p.status !== 'Expired') return false
     
     if (!q) return true
     const s = q.toLowerCase()

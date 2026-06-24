@@ -16,8 +16,9 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [hasPremium, setHasPremium] = useState(false)
   
-  const { user, isLoading: authLoading, logout } = useAuth()
+  const { user, token, isLoading: authLoading, logout } = useAuth()
   const { setTheme, resolvedTheme } = useTheme()
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -25,17 +26,45 @@ export default function Navbar() {
     { href: '/companies', label: 'Companies' },
     { href: '/investors', label: 'Investors' },
     { href: '/founders', label: 'Founders' },
-    { href: '/compare', label: 'Compare' },
+    { href: '/compare', label: 'Compare', requiresPremium: true },
     { href: '/raises', label: 'Raises' },
-    { href: '/dashboard', label: 'Dashboard' },
+    { href: '/dashboard', label: 'Dashboard', requiresPremium: true },
     { href: '/pricing', label: 'Pricing' },
   ]
+
+  const filteredNavLinks = navLinks.filter(link => {
+    if (link.requiresPremium && !hasPremium) return false
+    return true
+  })
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    async function checkPremium() {
+      if (!user || !token) {
+        setHasPremium(false)
+        return
+      }
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+        const res = await fetch(`${API_BASE}/user/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const pkg = data.packageId || data.package_id || 'Free'
+          setHasPremium(pkg !== 'Free Plan' && pkg.toLowerCase() !== 'free')
+        }
+      } catch {
+        // ignore
+      }
+    }
+    checkPremium()
+  }, [user, token])
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -78,7 +107,7 @@ export default function Navbar() {
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {filteredNavLinks.map((link) => {
               const isActive =
                 link.href === '/'
                   ? pathname === '/'
@@ -215,7 +244,7 @@ export default function Navbar() {
             }`}
         >
           <div className="flex flex-col gap-1 pt-2 border-t border-slate-200/60 dark:border-white/5">
-            {navLinks.map((link) => {
+            {filteredNavLinks.map((link) => {
               const isActive =
                 link.href === '/'
                   ? pathname === '/'

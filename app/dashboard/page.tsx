@@ -1,6 +1,7 @@
 import DashboardClient from '@/components/dashboard/DashboardClient'
 import { fundingOverTimeData, sectorDistributionData, topInvestorsMock } from '@/lib/dashboard-mock'
 import { fetchStats } from '@/lib/api'
+import PremiumGuard from '@/components/auth/PremiumGuard'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -29,8 +30,9 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+    <PremiumGuard>
+      <div className="min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto">
         
         {/* Header */}
         <div className="mb-10 animate-slide-up">
@@ -50,7 +52,8 @@ export default async function DashboardPage() {
           topInvestors={topInvestorsMock}
         />
         
+        </div>
       </div>
-    </div>
+    </PremiumGuard>
   )
 }

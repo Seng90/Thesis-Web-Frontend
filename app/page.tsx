@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { fetchStats, fetchFeaturedCompanies } from '@/lib/api'
-import type { Company } from '@/lib/types'
+import { fetchStats, fetchFeaturedCompanies, fetchRecentInvestments, fetchTopIndustries } from '@/lib/api'
+import type { Company, InvestmentFull } from '@/lib/types'
 import { useAuth } from '@/lib/auth'
 import CompanyCard from '@/components/cards/CompanyCard'
-import { Building2, Users, TrendingUp, Banknote, Search, Rocket, ArrowRight } from 'lucide-react'
+import { Building2, Users, TrendingUp, Banknote, Search, Rocket, ArrowRight, Factory, Briefcase, Stethoscope, ShoppingCart, GraduationCap, MonitorSmartphone, DollarSign, Calendar, BriefcaseBusiness, Activity } from 'lucide-react'
 
 export default function Home() {
   const router = useRouter()
@@ -20,17 +20,23 @@ export default function Home() {
     totalFundingUSD: 0
   })
   const [featuredCompanies, setFeaturedCompanies] = useState<Company[]>([])
+  const [topIndustries, setTopIndustries] = useState<string[]>([])
+  const [recentInvestments, setRecentInvestments] = useState<InvestmentFull[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [apiStats, apiFeatured] = await Promise.all([
+        const [apiStats, apiFeatured, apiIndustries, apiInvestments] = await Promise.all([
           fetchStats(),
-          fetchFeaturedCompanies(3),
+          fetchFeaturedCompanies(9),
+          fetchTopIndustries(6),
+          fetchRecentInvestments(6),
         ])
         setStats(apiStats)
         if (apiFeatured.length > 0) setFeaturedCompanies(apiFeatured)
+        setTopIndustries(apiIndustries)
+        setRecentInvestments(apiInvestments)
       } catch {
         console.error('Failed to load data')
       } finally {
@@ -52,14 +58,9 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       
-      {/* Hero Section + Stats as one continuous block */}
-      <section className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-500 overflow-hidden">
-        {/* Decorative Blobs */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute top-[10%] left-[10%] w-[40%] h-[40%] rounded-full bg-white/10 blur-[120px] animate-pulse-slow"></div>
-          <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-purple-400/20 blur-[100px] animate-float"></div>
-          <div className="absolute top-[60%] left-[50%] w-[25%] h-[25%] rounded-full bg-amber-400/10 blur-[80px]"></div>
-        </div>
+      <section className="relative bg-[url('/hero-bg.jpg')] bg-cover bg-center bg-no-repeat overflow-hidden">
+        {/* Dark Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/45 via-slate-950/70 to-slate-950" />
 
         {/* Hero Content */}
         <div className="relative z-10 pt-20 pb-10 lg:pt-28 lg:pb-14">
@@ -180,7 +181,7 @@ export default function Home() {
         
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(3)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <div key={i} className="animate-pulse bg-slate-100 dark:bg-surface-800 h-64 rounded-2xl border border-slate-200 dark:border-surface-700"></div>
             ))}
           </div>
@@ -200,6 +201,117 @@ export default function Home() {
             View All Companies <span className="ml-2">→</span>
           </Link>
         </div>
+      </section>
+
+      {/* Explore by Industry Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full bg-slate-50/50 dark:bg-surface-900/30 rounded-3xl mb-24 border border-slate-200/50 dark:border-surface-700/50">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-4">Explore by Industry</h2>
+          <p className="text-slate-600 dark:text-slate-400">Find startups in the most active sectors</p>
+        </div>
+        
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-white dark:bg-surface-800 h-32 rounded-2xl border border-slate-200 dark:border-surface-700"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {topIndustries.map((ind) => (
+              <Link key={ind} href={`/companies?q=${encodeURIComponent(ind)}`} className="group flex flex-col items-center justify-center p-6 bg-white dark:bg-surface-800 rounded-2xl border border-slate-200 dark:border-surface-700 hover:border-indigo-500 dark:hover:border-indigo-400 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 transition-colors">
+                  <BriefcaseBusiness className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <span className="text-sm font-semibold text-slate-900 dark:text-white text-center line-clamp-1">{ind}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Recent Funding Rounds Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full mb-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12 gap-4">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">Recent Funding Rounds</h2>
+            <p className="text-slate-600 dark:text-slate-400">The latest investments shaping the ecosystem</p>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="flex flex-col gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-slate-100 dark:bg-surface-800 h-20 rounded-2xl border border-slate-200 dark:border-surface-700"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {/* Header Row */}
+            <div className="hidden md:grid grid-cols-5 gap-4 px-6 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-surface-700">
+              <div className="col-span-2">Company</div>
+              <div>Amount</div>
+              <div>Round</div>
+              <div>Investor & Date</div>
+            </div>
+            
+            {/* List Items */}
+            {recentInvestments.map((inv) => (
+              <div key={inv.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start md:items-center bg-white dark:bg-surface-800 p-4 md:px-6 md:py-4 rounded-2xl border border-slate-200/60 dark:border-surface-700 shadow-sm hover:shadow-md transition-all group">
+                {/* Company */}
+                <div className="col-span-2 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-surface-700 flex items-center justify-center overflow-hidden shrink-0">
+                    {inv.company?.logoUrl ? (
+                      <img src={inv.company.logoUrl} alt={inv.company.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Building2 className="w-5 h-5 text-slate-400" />
+                    )}
+                  </div>
+                  <div>
+                    <Link href={`/companies/${inv.companyId}`} className="font-semibold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-1">
+                      {inv.company?.name || 'Unknown Company'}
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Amount */}
+                <div>
+                  <p className="text-xs md:hidden text-slate-500 dark:text-slate-400 mb-1">Amount</p>
+                  <p className="font-bold text-slate-900 dark:text-white">
+                    {inv.currency} {Intl.NumberFormat('en-US', { notation: 'compact' }).format(inv.amount)}
+                  </p>
+                </div>
+                
+                {/* Round */}
+                <div>
+                  <p className="text-xs md:hidden text-slate-500 dark:text-slate-400 mb-1">Round</p>
+                  <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-full inline-block">
+                    {inv.round?.roundName || 'Investment'}
+                  </span>
+                </div>
+                
+                {/* Investor & Date */}
+                <div>
+                  <p className="text-xs md:hidden text-slate-500 dark:text-slate-400 mb-1">Investor & Date</p>
+                  <div className="flex flex-col">
+                    {inv.investor ? (
+                      <Link href={`/investors/${inv.investorId}`} className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-1">
+                        {inv.investor.name}
+                      </Link>
+                    ) : (
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300 line-clamp-1">
+                        {inv.customInvestorName || '-'}
+                      </span>
+                    )}
+                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {new Date(inv.investDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* How It Works Section */}

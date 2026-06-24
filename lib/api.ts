@@ -14,6 +14,7 @@ import type {
   InvestorWithPortfolio,
   FounderWithRole,
   InvestmentWithDetails,
+  InvestmentFull,
   Package,
   FundraisingPost,
   PostReactionSummary,
@@ -57,7 +58,6 @@ function mapCompany(raw: any): Company {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapInvestor(raw: any): Investor {
   return {
     id: raw.id,
@@ -66,6 +66,9 @@ function mapInvestor(raw: any): Investor {
     logoUrl: raw.logo_url ?? null,
     websiteUrl: raw.website_url ?? null,
     contactInfo: raw.contact_info ?? null,
+    investmentFocus: raw.investment_focus ?? undefined,
+    preferredStages: Array.isArray(raw.preferred_stages) ? raw.preferred_stages : undefined,
+    preferredIndustries: Array.isArray(raw.preferred_industries) ? raw.preferred_industries : undefined,
     createdAt: raw.created_at ?? '',
     updatedAt: raw.updated_at ?? '',
   }
@@ -80,6 +83,10 @@ function mapFounder(raw: any): Founder {
     bio: raw.bio ?? undefined,
     linkedinUrl: raw.linkedin_url ?? undefined,
     role: raw.role ?? undefined,
+    skills: Array.isArray(raw.skills) ? raw.skills : undefined,
+    pastExperience: raw.past_experience ?? undefined,
+    twitterUrl: raw.twitter_url ?? undefined,
+    githubUrl: raw.github_url ?? undefined,
     createdAt: raw.created_at ?? '',
     updatedAt: raw.updated_at ?? '',
   }
@@ -111,6 +118,16 @@ function mapInvestment(raw: any): Investment {
     referenceUrl: raw.reference_url ?? null,
     createdAt: raw.created_at ?? '',
     updatedAt: raw.updated_at ?? '',
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapInvestmentFull(raw: any): InvestmentFull {
+  return {
+    ...mapInvestment(raw),
+    company: mapCompany(raw.companies ?? raw.company ?? {}),
+    investor: (raw.investors || raw.investor) ? mapInvestor(raw.investors ?? raw.investor) : null,
+    round: mapFundingRound(raw.funding_rounds ?? raw.funding_round ?? {}),
   }
 }
 
@@ -250,6 +267,35 @@ export async function fetchInvestments(): Promise<InvestmentWithDetails[]> {
   return data.map(mapInvestment)
 }
 
+export async function fetchRecentInvestments(limit: number = 6): Promise<InvestmentFull[]> {
+  const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
+  if (!res.ok) throw new Error('Failed to fetch investments')
+  const text = await res.text()
+  if (!text) return []
+  const data = JSON.parse(text)
+  const investments = data.map(mapInvestmentFull)
+  return investments
+    .sort((a: InvestmentFull, b: InvestmentFull) => new Date(b.investDate).getTime() - new Date(a.investDate).getTime())
+    .slice(0, limit)
+}
+
+export async function fetchTopIndustries(limit: number = 6): Promise<string[]> {
+  const companies = await fetchCompanies()
+  const approved = companies.filter(c => c.status === 'Approved')
+  
+  const industryCounts: Record<string, number> = {}
+  approved.forEach(c => {
+    if (c.industry) {
+      industryCounts[c.industry] = (industryCounts[c.industry] || 0) + 1
+    }
+  })
+  
+  return Object.entries(industryCounts)
+    .sort((a: [string, number], b: [string, number]) => b[1] - a[1])
+    .slice(0, limit)
+    .map(entry => entry[0])
+}
+
 export async function fetchPackages(): Promise<Package[]> {
   const res = await fetch(`${API_BASE}/user/packages`, { next: { revalidate: 60 } })
   if (!res.ok) throw new Error('Failed to fetch packages')
@@ -279,45 +325,18 @@ const parseTags = (tags: any): string[] => {
   return []
 }
 
-export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
-  const res = await fetch(`${API_BASE}/user/fundraising-posts`, { next: { revalidate: 30 } })
-  if (!res.ok) throw new Error('Failed to fetch fundraising posts')
-  const text = await res.text()
-  if (!text) return []
-  const data = JSON.parse(text)
-  return data.map((p: any) => ({
-    id: p.id,
-    slug: p.slug,
-    title: p.title,
-    excerpt: p.excerpt,
-    content: p.content,
-    companyId: p.companyId ?? p.company_id ?? '',
-    companyName: p.companyName ?? p.company_name,
-    roundType: p.roundType ?? p.round_type,
-    targetAmountUsd: p.targetAmountUsd ?? p.target_amount_usd,
-    minTicketUsd: p.minTicketUsd ?? p.min_ticket_usd,
-    deadline: p.deadline,
-    coverUrl: p.coverUrl ?? p.cover_url,
-    tags: parseTags(p.tags),
-    status: p.status ?? 'Active',
-    adminFeedback: p.adminFeedback ?? p.admin_feedback,
-    contactEmail: p.contactEmail ?? p.contact_email,
-    pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
-    websiteUrl: p.websiteUrl ?? p.website_url,
-    publishedAt: p.publishedAt ?? p.published_at,
-    startDate: p.startDate ?? p.start_date,
-  }))
-}
-
-export async function fetchFundraisingPostBySlug(slug: string): Promise<FundraisingPost | null> {
-  const res = await fetch(`${API_BASE}/user/fundraising-posts/${slug}`, { next: { revalidate: 30 } })
-  if (!res.ok) {
-    if (res.status === 404) return null
-    throw new Error('Failed to fetch fundraising post detail')
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapFundraisingPost(p: any): FundraisingPost {
+  let derivedStatus = p.status ?? 'Active'
+  if (derivedStatus === 'Active' && p.deadline) {
+    const deadlineDate = new Date(p.deadline)
+    // Set to end of day to be generous
+    deadlineDate.setHours(23, 59, 59, 999)
+    if (deadlineDate.getTime() < new Date().getTime()) {
+      derivedStatus = 'Expired'
+    }
   }
-  const text = await res.text()
-  if (!text) return null
-  const p = JSON.parse(text)
+
   return {
     id: p.id,
     slug: p.slug,
@@ -332,7 +351,7 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
     deadline: p.deadline,
     coverUrl: p.coverUrl ?? p.cover_url,
     tags: parseTags(p.tags),
-    status: p.status ?? 'Active',
+    status: derivedStatus,
     adminFeedback: p.adminFeedback ?? p.admin_feedback,
     contactEmail: p.contactEmail ?? p.contact_email,
     pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
@@ -340,6 +359,27 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
     publishedAt: p.publishedAt ?? p.published_at,
     startDate: p.startDate ?? p.start_date,
   }
+}
+
+export async function fetchFundraisingPosts(): Promise<FundraisingPost[]> {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts`, { next: { revalidate: 30 } })
+  if (!res.ok) throw new Error('Failed to fetch fundraising posts')
+  const text = await res.text()
+  if (!text) return []
+  const data = JSON.parse(text)
+  return data.map(mapFundraisingPost)
+}
+
+export async function fetchFundraisingPostBySlug(slug: string): Promise<FundraisingPost | null> {
+  const res = await fetch(`${API_BASE}/user/fundraising-posts/${slug}`, { next: { revalidate: 30 } })
+  if (!res.ok) {
+    if (res.status === 404) return null
+    throw new Error('Failed to fetch fundraising post detail')
+  }
+  const text = await res.text()
+  if (!text) return null
+  const p = JSON.parse(text)
+  return mapFundraisingPost(p)
 }
 
 // --- Social Engagement (Likes & Comments) ---
@@ -456,28 +496,7 @@ export async function fetchMyPosts(token: string): Promise<FundraisingPost[]> {
     throw new Error('Failed to fetch my posts')
   }
   const data = await res.json()
-  return data.map((p: any) => ({
-    id: p.id,
-    slug: p.slug,
-    title: p.title,
-    excerpt: p.excerpt,
-    content: p.content,
-    companyId: p.companyId ?? p.company_id ?? '',
-    companyName: p.companyName ?? p.company_name,
-    roundType: p.roundType ?? p.round_type,
-    targetAmountUsd: p.targetAmountUsd ?? p.target_amount_usd,
-    minTicketUsd: p.minTicketUsd ?? p.min_ticket_usd,
-    deadline: p.deadline,
-    coverUrl: p.coverUrl ?? p.cover_url,
-    tags: parseTags(p.tags),
-    status: p.status ?? 'Active',
-    adminFeedback: p.adminFeedback ?? p.admin_feedback,
-    contactEmail: p.contactEmail ?? p.contact_email,
-    pitchDeckUrl: p.pitchDeckUrl ?? p.pitch_deck_url,
-    websiteUrl: p.websiteUrl ?? p.website_url,
-    publishedAt: p.publishedAt ?? p.published_at,
-    startDate: p.startDate ?? p.start_date,
-  }))
+  return data.map(mapFundraisingPost)
 }
 
 export async function updateFundraisingPost(id: string, token: string, payload: Record<string, any>) {

@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
-export default function PricingPlanActions({ pkgId, price, popular }: { pkgId: string, price: number, popular: boolean }) {
+export default function PricingPlanActions({ pkgId, pkgName, price, popular }: { pkgId: string, pkgName: string, price: number, popular: boolean }) {
   const { token } = useAuth()
   const [currentPackageId, setCurrentPackageId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -40,7 +40,7 @@ export default function PricingPlanActions({ pkgId, price, popular }: { pkgId: s
   }
 
   // If user has no package ID and price is 0, they are on free plan
-  const isCurrentPlan = currentPackageId === pkgId || (price === 0 && (!currentPackageId || currentPackageId === 'Free Plan' || currentPackageId === 'free'))
+  const isCurrentPlan = currentPackageId === pkgId || currentPackageId === pkgName || (price === 0 && (!currentPackageId || currentPackageId === 'Free Plan' || currentPackageId === 'free' || currentPackageId === 'Free'))
 
   if (isCurrentPlan) {
     return (

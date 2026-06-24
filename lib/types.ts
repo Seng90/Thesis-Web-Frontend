@@ -49,6 +49,10 @@ export interface Founder {
   bio?: string
   linkedinUrl?: string
   role?: string
+  skills?: string[]
+  pastExperience?: string
+  twitterUrl?: string
+  githubUrl?: string
   createdAt: string
   updatedAt: string
 }
@@ -60,6 +64,9 @@ export interface Investor {
   logoUrl: string | null
   websiteUrl: string | null
   contactInfo: string | null
+  investmentFocus?: string
+  preferredStages?: string[]
+  preferredIndustries?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -191,6 +198,10 @@ export interface FounderWithRole extends Founder {
 export interface InvestmentWithDetails extends Investment {
   investor: Investor | null
   round: FundingRound
+}
+
+export interface InvestmentFull extends InvestmentWithDetails {
+  company: Company
 }
 
 export interface CompanyWithRelations extends Company {

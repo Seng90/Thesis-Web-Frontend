@@ -54,6 +54,16 @@ export default function FounderCard({ founder }: { founder: FounderWithRole }) {
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">{founder.bio}</p>
           )}
 
+          {founder.skills && founder.skills.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {founder.skills.map((skill) => (
+                <span key={skill} className="px-2 py-0.5 bg-slate-100 dark:bg-surface-700 text-slate-600 dark:text-slate-300 rounded text-xs font-medium">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+
           <div className="flex flex-col gap-2">
             {founder.linkedinUrl && (
               <a href={founder.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">

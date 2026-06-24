@@ -113,7 +113,7 @@ export default async function PricingPage() {
                   </span>
                 </div>
 
-                <PricingPlanActions pkgId={pkg.id} price={pkg.price} popular={popular} />
+                <PricingPlanActions pkgId={pkg.id} pkgName={pkg.name} price={pkg.price} popular={popular} />
 
                 {pkg.price > 0 && (
                   <p className="mt-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
