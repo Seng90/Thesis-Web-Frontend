@@ -3,6 +3,7 @@ import { fetchPackages } from '@/lib/api'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Check, Sparkles, Lock, Zap, Crown, ArrowRight } from 'lucide-react'
+import PricingPlanActions from './PricingPlanActions'
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -112,17 +113,7 @@ export default async function PricingPage() {
                   </span>
                 </div>
 
-                <Link
-                  href={pkg.price > 0 ? `/checkout/${pkg.id}` : "/companies"}
-                  className={`mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all ${
-                    popular
-                      ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  {pkg.price > 0 ? 'Upgrade Now' : 'Current Plan'}
-                  {pkg.price > 0 && <ArrowRight className="h-4 w-4" />}
-                </Link>
+                <PricingPlanActions pkgId={pkg.id} price={pkg.price} popular={popular} />
 
                 {pkg.price > 0 && (
                   <p className="mt-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400">

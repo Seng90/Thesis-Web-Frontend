@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { fetchStats, fetchFeaturedCompanies } from '@/lib/api'
 import type { Company } from '@/lib/types'
+import { useAuth } from '@/lib/auth'
 import CompanyCard from '@/components/cards/CompanyCard'
 import { Building2, Users, TrendingUp, Banknote, Search, Rocket, ArrowRight } from 'lucide-react'
 
 export default function Home() {
   const router = useRouter()
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [stats, setStats] = useState({
     totalCompanies: 0,
@@ -95,14 +97,14 @@ export default function Home() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search companies, industries, or investors..."
-                    className="flex-1 px-4 py-4.5 bg-transparent text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-base outline-none"
+                    className="flex-1 px-4 py-4.5 bg-transparent text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 text-base outline-none min-w-0"
                     id="hero-search"
                   />
                   <button
                     type="submit"
-                    className="mr-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+                    className="mr-2 px-3 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg transition-all duration-300 flex items-center gap-2 shrink-0"
                   >
-                    Search
+                    <span className="hidden sm:inline">Search</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -154,9 +156,11 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center shrink-0">
                     <Banknote className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <div>
-                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white ${isLoading ? 'animate-pulse' : ''}`}>${stats.totalFundingUSD.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">Total Funding</p>
+                  <div className="min-w-0">
+                    <p className={`text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white truncate ${isLoading ? 'animate-pulse' : ''}`}>
+                      ${Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(stats.totalFundingUSD)}
+                    </p>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium truncate">Total Funding</p>
                   </div>
                 </div>
               </div>
@@ -238,23 +242,25 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-4 bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-900 text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px]"></div>
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-            Ready to Explore Laos' Startup Ecosystem?
-          </h2>
-          <p className="text-xl text-indigo-100/80 mb-10 max-w-2xl mx-auto">
-            Join thousands of entrepreneurs, investors, and enthusiasts. Create your free account today to get started.
-          </p>
-          <Link 
-            href="/signup"
-            className="inline-flex px-8 py-4 bg-white text-indigo-900 rounded-xl font-bold text-lg hover:bg-indigo-50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-          >
-            Create Free Account
-          </Link>
-        </div>
-      </section>
+      {!user && (
+        <section className="py-24 px-4 bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-900 text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px]"></div>
+          <div className="relative z-10 max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+              Ready to Explore Laos' Startup Ecosystem?
+            </h2>
+            <p className="text-xl text-indigo-100/80 mb-10 max-w-2xl mx-auto">
+              Join thousands of entrepreneurs, investors, and enthusiasts. Create your free account today to get started.
+            </p>
+            <Link 
+              href="/signup"
+              className="inline-flex px-8 py-4 bg-white text-indigo-900 rounded-xl font-bold text-lg hover:bg-indigo-50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              Create Free Account
+            </Link>
+          </div>
+        </section>
+      )}
 
     </div>
   )
