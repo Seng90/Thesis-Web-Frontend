@@ -242,7 +242,7 @@ export default function SettingsPage() {
               
               <div className="my-2 border-t border-surface-200 dark:border-white/5"></div>
               
-              {user?.role === 'Founder' && (
+              {user?.role?.toLowerCase() === 'founder' && (
                 <Link
                   href="/raises/my-posts"
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-white/5"
@@ -328,10 +328,9 @@ export default function SettingsPage() {
                           <input
                             type="email"
                             name="email"
-                            required
+                            disabled
                             value={profileData.email}
-                            onChange={handleProfileChange}
-                            className="block w-full rounded-xl border-surface-300 dark:border-surface-700 bg-white dark:bg-surface-950 py-2.5 px-3.5 text-surface-900 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-colors"
+                            className="block w-full rounded-xl border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-900/50 py-2.5 px-3.5 text-surface-500 dark:text-surface-400 shadow-sm sm:text-sm cursor-not-allowed"
                           />
                         </div>
                       </div>

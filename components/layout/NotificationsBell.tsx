@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Bell, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { fetchMyPosts } from '@/lib/api'
@@ -10,6 +10,7 @@ import type { FundraisingPost } from '@/lib/types'
 export default function NotificationsBell() {
   const { user, token } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   
   const [hiddenPosts, setHiddenPosts] = useState<FundraisingPost[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -22,7 +23,7 @@ export default function NotificationsBell() {
       setIsLoading(true)
       try {
         const posts = await fetchMyPosts(token)
-        const filtered = posts.filter(p => p.status === 'Hidden')
+        const filtered = posts.filter(p => p.status === 'Hidden' && p.adminFeedback)
         setHiddenPosts(filtered)
       } catch (err) {
         console.error('Failed to load notifications', err)
@@ -31,10 +32,10 @@ export default function NotificationsBell() {
       }
     }
 
-    if (user && token) {
+    if (user && token && user.role?.toLowerCase() === 'founder') {
       loadNotifications()
     }
-  }, [user, token])
+  }, [user, token, pathname])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -98,7 +99,7 @@ export default function NotificationsBell() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-900 dark:text-white line-clamp-2">
-                        ແຈ້ງເຕືອນ: ໂພສ &quot;{post.title}&quot; ຂອງທ່ານຖືກເຊື່ອງ
+                        Action Required: {post.title}
                       </p>
                       <p className="text-xs text-orange-600 dark:text-orange-400 mt-1 line-clamp-2 group-hover:text-orange-700 dark:group-hover:text-orange-300 transition-colors">
                         {post.adminFeedback || 'There is an issue with your post.'}

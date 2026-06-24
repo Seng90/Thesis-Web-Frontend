@@ -47,7 +47,7 @@ export default function PostRaisePage() {
     if (!isAuthLoading) {
       if (!user) {
         router.push('/login?redirect=/raises/new')
-      } else if (user.role !== 'Founder') {
+      } else if (user.role?.toLowerCase() !== 'founder') {
         alert('ທ່ານຕ້ອງເປັນ Founder ຈຶ່ງສາມາດເຂົ້າເຖິງໄດ້')
         router.push('/')
       }
@@ -59,7 +59,7 @@ export default function PostRaisePage() {
     async function fetchCompanies() {
       if (!token) return
       try {
-        const res = await fetch(`${API_BASE}/user/companies/my`, {
+        const res = await fetch(`${API_BASE}/user/companies/my-managed-companies`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         if (res.ok) {
@@ -250,7 +250,9 @@ export default function PostRaisePage() {
                   ))}
                 </select>
                 {!isCompaniesLoading && companies.length === 0 && (
-                  <p className="mt-1.5 text-xs text-red-500">You do not have any approved companies yet.</p>
+                  <p className="mt-2 text-sm text-red-500 font-medium">
+                    ທ່ານຍັງບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ຄຸ້ມຄອງບໍລິສັດໃດໆ, ກະລຸນາຕິດຕໍ່ Admin
+                  </p>
                 )}
               </div>
 

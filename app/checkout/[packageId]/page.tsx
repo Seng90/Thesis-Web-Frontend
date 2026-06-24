@@ -8,7 +8,7 @@ import { Check, Lock, CreditCard } from 'lucide-react'
 export default function CheckoutPage() {
   const { packageId } = useParams() as { packageId: string }
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [pkg, setPkg] = useState<{ name: string; price: number } | null>(null)
@@ -17,7 +17,7 @@ export default function CheckoutPage() {
     const fetchPkg = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-        const res = await fetch(`${apiUrl}/packages/${packageId}`)
+        const res = await fetch(`${apiUrl}/user/packages/${packageId}`)
         if (res.ok) {
           const data = await res.json()
           setPkg(data)
@@ -43,13 +43,18 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Use token if available
+          'Authorization': `Bearer ${localStorage.getItem('investrack_token')}`
         },
         body: JSON.stringify({ memberId: user.id, packageId })
       })
 
       if (!response.ok) {
         throw new Error('Payment failed')
+      }
+
+      // If user is just a 'user', upgrade them to 'membership' in the frontend session
+      if (user.role?.toLowerCase() === 'user') {
+        updateUser({ role: 'membership' })
       }
 
       // Success

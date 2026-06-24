@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.user?.id ?? '',
         username: data.user?.username ?? '',
         email: data.user?.email ?? email,
-        role: data.user?.role ?? 'member',
+        role: data.user?.role ?? 'user',
         avatarUrl: data.user?.avatar_url ?? data.user?.avatarUrl ?? '',
       }
 
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`${API_BASE}/members`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, role: 'user' }),
       })
 
       if (!res.ok) {
@@ -173,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: payload.sub ?? payload.id ?? '',
         username: payload.username ?? '',
         email: payload.email ?? '',
-        role: payload.role ?? 'member',
+        role: payload.role ?? 'user',
         avatarUrl: payload.avatar_url ?? payload.avatarUrl ?? '',
       }
 

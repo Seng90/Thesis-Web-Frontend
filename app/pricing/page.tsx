@@ -36,6 +36,13 @@ export default async function PricingPage() {
       try {
         const parsed = JSON.parse(feat)
         if (Array.isArray(parsed)) return parsed
+        if (typeof parsed === 'object' && parsed !== null) {
+          return Object.entries(parsed).map(([k, v]) => {
+            const keyFormatted = k.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+            const valFormatted = v === -1 ? 'Unlimited' : v
+            return `${keyFormatted}: ${valFormatted}`
+          })
+        }
         return [feat]
       } catch {
         return feat.split(/[\n|,]+/).map((f) => f.trim()).filter(Boolean)

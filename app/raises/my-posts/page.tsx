@@ -19,7 +19,7 @@ export default function MyPostsPage() {
     if (!isLoading) {
       if (!user) {
         router.push('/login?redirect=/raises/my-posts')
-      } else if (user.role !== 'Founder') {
+      } else if (user.role?.toLowerCase() !== 'founder') {
         alert('ທ່ານຕ້ອງເປັນ Founder ຈຶ່ງສາມາດເຂົ້າເຖິງໄດ້')
         router.push('/')
       }
@@ -28,7 +28,7 @@ export default function MyPostsPage() {
 
   useEffect(() => {
     async function load() {
-      if (!token) return
+      if (!token || !user || user.role?.toLowerCase() !== 'founder') return
       try {
         const data = await fetchMyPosts(token)
         setPosts(data)
@@ -39,7 +39,7 @@ export default function MyPostsPage() {
       }
     }
     load()
-  }, [token])
+  }, [token, user])
 
   const handleCancel = async (id: string) => {
     if (!confirm('Are you sure you want to cancel this fundraising post? This cannot be undone.')) return
