@@ -19,6 +19,8 @@ import type {
   FundraisingPost,
   PostReactionSummary,
   PostComment,
+  CompanyRevision,
+  RevisionFieldDecision,
 } from './types'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
@@ -178,6 +180,36 @@ function mapInvestorWithPortfolio(raw: any): InvestorWithPortfolio {
   )
 
   return { ...investor, investments }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapCompanyRevision(raw: any): CompanyRevision {
+  return {
+    id: raw.id,
+    entityType: raw.entity_type ?? 'company',
+    entityId: raw.entity_id ?? null,
+    proposedChanges: raw.proposed_changes ?? {},
+    requestedBy: raw.requested_by ?? null,
+    submittedBy: raw.submitted_by ?? null,
+    submitterType: raw.submitter_type ?? 'member',
+    reviewedBy: raw.reviewed_by ?? null,
+    status: raw.status ?? 'Pending',
+    fieldDecisions: raw.field_decisions
+      ? Object.keys(raw.field_decisions).reduce((acc, key) => {
+          const dec = raw.field_decisions[key]
+          if (dec) {
+            acc[key] = {
+              status: dec.status,
+              reason: dec.reason ?? undefined,
+            }
+          }
+          return acc
+        }, {} as Record<string, RevisionFieldDecision>)
+      : null,
+    adminNote: raw.admin_note ?? null,
+    createdAt: raw.created_at ?? '',
+    updatedAt: raw.updated_at ?? '',
+  }
 }
 
 // ==========================================
@@ -533,3 +565,47 @@ export async function cancelFundraisingPost(id: string, token: string) {
   if (!res.ok) throw new Error('Failed to cancel post')
   return res.json()
 }
+
+export async function requestCompanyRevision(
+  companyId: string,
+  proposedChanges: Record<string, unknown>,
+  token: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<any> {
+  const res = await authFetch(`${API_BASE}/user/revisions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      entity_type: 'company',
+      entity_id: companyId,
+      proposed_changes: proposedChanges
+    })
+  })
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => 'No body')
+    console.error(`[requestCompanyRevision] Failed with status ${res.status}: ${errorBody}`)
+    throw new Error('Failed to request company revision')
+  }
+  return res.json()
+}
+
+export async function fetchMyRevisions(token: string): Promise<CompanyRevision[]> {
+  const res = await authFetch(`${API_BASE}/user/revisions/my`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+    cache: 'no-store'
+  })
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => 'No body')
+    console.error(`[fetchMyRevisions] Failed with status ${res.status}: ${errorBody}`)
+    throw new Error('Failed to fetch my revisions')
+  }
+  const data = await res.json()
+  if (!data || !Array.isArray(data)) return []
+  return data.map(mapCompanyRevision)
+}
+

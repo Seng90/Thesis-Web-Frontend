@@ -215,3 +215,25 @@ export interface InvestorWithPortfolio extends Investor {
     round: FundingRound
   })[]
 }
+
+export interface RevisionFieldDecision {
+  status: 'approved' | 'rejected'
+  reason?: string
+}
+
+export interface CompanyRevision {
+  id: string
+  entityType: string
+  entityId: string | null
+  proposedChanges: Record<string, unknown>
+  requestedBy: string | null
+  submittedBy: string | null
+  submitterType: 'admin' | 'member'
+  reviewedBy: string | null
+  status: 'Pending' | 'Approved' | 'Rejected' | 'PartiallyApproved'
+  fieldDecisions: Record<string, RevisionFieldDecision> | null
+  adminNote: string | null
+  createdAt: string
+  updatedAt: string
+}
+
