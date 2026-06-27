@@ -7,6 +7,7 @@ import { fetchStats, fetchFeaturedCompanies, fetchRecentInvestments, fetchTopInd
 import type { Company, InvestmentFull } from '@/lib/types'
 import { useAuth } from '@/lib/auth'
 import CompanyCard from '@/components/cards/CompanyCard'
+import { formatDate } from '@/lib/utils'
 import { Building2, Users, TrendingUp, Banknote, Search, Rocket, ArrowRight, Factory, Briefcase, Stethoscope, ShoppingCart, GraduationCap, MonitorSmartphone, DollarSign, Calendar, BriefcaseBusiness, Activity } from 'lucide-react'
 
 export default function Home() {
@@ -304,7 +305,7 @@ export default function Home() {
                       </span>
                     )}
                     <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      {new Date(inv.investDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {formatDate(inv.investDate, '-')}
                     </span>
                   </div>
                 </div>
@@ -359,7 +360,7 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px]"></div>
           <div className="relative z-10 max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Ready to Explore Laos' Startup Ecosystem?
+              Ready to Explore Laos&apos; Startup Ecosystem?
             </h2>
             <p className="text-xl text-indigo-100/80 mb-10 max-w-2xl mx-auto">
               Join thousands of entrepreneurs, investors, and enthusiasts. Create your free account today to get started.

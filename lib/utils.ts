@@ -26,13 +26,17 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
 /**
  * Format date to readable string
  */
-export function formatDate(dateString: string | null): string {
-  if (!dateString) return 'N/A'
+export function formatDate(dateString: string | null | undefined, fallback: string = 'N/A'): string {
+  if (!dateString) return fallback
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return fallback
+  
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  }).format(new Date(dateString))
+    timeZone: 'UTC'
+  }).format(date)
 }
 
 /**
