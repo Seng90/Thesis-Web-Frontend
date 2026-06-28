@@ -42,9 +42,11 @@ export function formatDate(dateString: string | null | undefined, fallback: stri
 /**
  * Get year from date string
  */
-export function getYear(dateString: string | null): string {
-  if (!dateString) return 'N/A'
-  return new Date(dateString).getFullYear().toString()
+export function getYear(dateString: string | null | undefined, fallback: string = 'N/A'): string {
+  if (!dateString) return fallback
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return fallback
+  return date.getFullYear().toString()
 }
 
 /**
