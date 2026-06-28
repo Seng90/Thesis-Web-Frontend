@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { fetchMyManagedCompanies } from '@/lib/api'
-import type { Company } from '@/lib/types'
+import type { CompanyWithRelations } from '@/lib/types'
 import { formatCurrency } from '@/lib/utils'
 import CompanyLogo from '@/components/ui/CompanyLogo'
 import { AlertCircle, Edit, ArrowLeft, Loader2, MapPin, TrendingUp, Tag } from 'lucide-react'
@@ -13,7 +13,7 @@ import { AlertCircle, Edit, ArrowLeft, Loader2, MapPin, TrendingUp, Tag } from '
 export default function MyCompaniesPage() {
   const { token, isLoading, user } = useAuth()
   const router = useRouter()
-  const [companies, setCompanies] = useState<Company[]>([])
+  const [companies, setCompanies] = useState<CompanyWithRelations[]>([])
   const [loadingCompanies, setLoadingCompanies] = useState(true)
 
   useEffect(() => {
@@ -92,8 +92,8 @@ export default function MyCompaniesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {companies.map(company => {
-              const investments = (company as any).investments || []
-              const totalFunding = investments.reduce((sum: number, inv: any) => sum + (inv.currency === 'USD' ? inv.amount : 0), 0)
+              const investments = company.investments || []
+              const totalFunding = investments.reduce((sum: number, inv) => sum + (inv.currency === 'USD' ? inv.amount : 0), 0)
               
               let stage = 'Bootstrapped'
               if (investments.length > 0) {
@@ -156,7 +156,7 @@ export default function MyCompaniesPage() {
                     
                     <Link
                       href={`/dashboard/my-companies/${company.id}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-50 dark:hover:bg-indigo-600 rounded-xl transition-colors shadow-sm"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 rounded-xl transition-colors shadow-sm"
                     >
                       <Edit className="w-3.5 h-3.5" />
                       Edit Details

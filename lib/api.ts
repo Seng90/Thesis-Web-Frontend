@@ -636,7 +636,7 @@ export async function fetchMyRevisions(token: string): Promise<CompanyRevision[]
   return data.map(mapCompanyRevision)
 }
 
-export async function fetchMyManagedCompanies(token: string): Promise<Company[]> {
+export async function fetchMyManagedCompanies(token: string): Promise<CompanyWithRelations[]> {
   const res = await authFetch(`${API_BASE}/user/companies/my-managed-companies`, {
     headers: { 'Authorization': `Bearer ${token}` },
     cache: 'no-store'
@@ -648,25 +648,7 @@ export async function fetchMyManagedCompanies(token: string): Promise<Company[]>
   }
   const data = await res.json()
   if (!data || !Array.isArray(data)) return []
-  return data.map((raw: unknown) => {
-    const rawObj = raw as Record<string, unknown>
-    const company = mapCompany(rawObj) as CompanyWithRelations
-    if (Array.isArray(rawObj.investments)) {
-      company.investments = rawObj.investments.map((inv: unknown) => mapInvestmentWithDetails(inv))
-    }
-    if (Array.isArray(rawObj.companies_found)) {
-      company.founders = rawObj.companies_found.map((cf: unknown) => {
-        const cfObj = cf as Record<string, unknown>
-        const founderObj = (cfObj.founders ?? cfObj.founder ?? { id: (cfObj.founder_id as string) || (cfObj.founderId as string) || '' })
-        return {
-          ...mapFounder(founderObj),
-          role: (cfObj.role as string) ?? '',
-          isActive: (cfObj.is_active as boolean) ?? (cfObj.isActive as boolean) ?? true,
-        }
-      })
-    }
-    return company
-  })
+  return data.map(mapCompanyWithRelations)
 }
 
 
