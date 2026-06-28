@@ -109,27 +109,39 @@ function mapFundingRound(raw: any): FundingRound {
 function mapInvestment(raw: any): Investment {
   return {
     id: raw.id,
-    companyId: raw.company_id,
-    investorId: raw.investor_id ?? null,
-    customInvestorName: raw.custom_investor_name ?? undefined,
-    roundId: raw.round_id,
-    amount: typeof raw.amount === 'string' ? parseFloat(raw.amount) : raw.amount,
+    companyId: raw.company_id ?? raw.companyId ?? '',
+    investorId: raw.investor_id ?? raw.investorId ?? null,
+    customInvestorName: raw.custom_investor_name ?? raw.customInvestorName ?? undefined,
+    roundId: raw.round_id ?? raw.roundId ?? '',
+    amount: typeof raw.amount === 'string' ? (parseFloat(raw.amount) || 0) : (raw.amount ?? 0),
     currency: raw.currency ?? 'USD',
-    investDate: raw.invest_date ?? '',
+    investDate: raw.invest_date ?? raw.investDate ?? '',
     status: raw.status ?? 'Pending',
-    referenceUrl: raw.reference_url ?? null,
-    createdAt: raw.created_at ?? '',
-    updatedAt: raw.updated_at ?? '',
+    referenceUrl: raw.reference_url ?? raw.referenceUrl ?? null,
+    createdAt: raw.created_at ?? raw.createdAt ?? '',
+    updatedAt: raw.updated_at ?? raw.updatedAt ?? '',
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapInvestmentWithDetails(raw: any): InvestmentWithDetails {
+  const rawInvestor = raw.investors ?? raw.investor
+  const rawRound = raw.funding_rounds ?? raw.funding_round
+  return {
+    ...mapInvestment(raw),
+    investor: rawInvestor ? mapInvestor(rawInvestor) : null,
+    round: mapFundingRound(rawRound ?? { id: raw.round_id || raw.roundId || '' }),
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapInvestmentFull(raw: any): InvestmentFull {
+  const rawCompany = raw.companies ?? raw.company
   return {
-    ...mapInvestment(raw),
-    company: mapCompany(raw.companies ?? raw.company ?? {}),
-    investor: (raw.investors || raw.investor) ? mapInvestor(raw.investors ?? raw.investor) : null,
-    round: mapFundingRound(raw.funding_rounds ?? raw.funding_round ?? {}),
+    ...mapInvestmentWithDetails(raw),
+    company: rawCompany 
+      ? mapCompany(rawCompany) 
+      : mapCompany({ id: raw.company_id || raw.companyId || '', name: 'Unknown Company' }),
   }
 }
 
@@ -144,21 +156,14 @@ function mapCompanyWithRelations(raw: any): CompanyWithRelations {
   const founders: FounderWithRole[] = (raw.companies_found ?? []).map(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (cf: any) => ({
-      ...mapFounder(cf.founders ?? cf.founder ?? {}),
+      ...mapFounder(cf.founders ?? cf.founder ?? { id: cf.founder_id || cf.founderId || '' }),
       role: cf.role ?? '',
-      isActive: cf.is_active ?? true,
+      isActive: cf.is_active ?? cf.isActive ?? true,
     })
   )
 
   // Map investments with nested investor and funding_round
-  const investments: InvestmentWithDetails[] = (raw.investments ?? []).map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (inv: any) => ({
-      ...mapInvestment(inv),
-      investor: (inv.investors || inv.investor) ? mapInvestor(inv.investors ?? inv.investor) : null,
-      round: mapFundingRound(inv.funding_rounds ?? inv.funding_round ?? {}),
-    })
-  )
+  const investments: InvestmentWithDetails[] = (raw.investments ?? []).map(mapInvestmentWithDetails)
 
   return { ...company, founders, investments }
 }
@@ -170,12 +175,10 @@ function mapCompanyWithRelations(raw: any): CompanyWithRelations {
 function mapInvestorWithPortfolio(raw: any): InvestorWithPortfolio {
   const investor = mapInvestor(raw)
 
-  const investments = (raw.investments ?? []).map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const investments: (InvestmentWithDetails & { company: Company })[] = (raw.investments ?? []).map(
     (inv: any) => ({
-      ...mapInvestment(inv),
-      company: mapCompany(inv.companies ?? inv.company ?? {}),
-      round: mapFundingRound(inv.funding_rounds ?? inv.funding_round ?? {}),
+      ...mapInvestmentWithDetails(inv),
+      company: mapCompany(inv.companies ?? inv.company ?? { id: inv.company_id || inv.companyId || '', name: 'Unknown Company' }),
     })
   )
 
@@ -194,10 +197,10 @@ function mapCompanyRevision(raw: any): CompanyRevision {
     submitterType: raw.submitter_type ?? 'member',
     reviewedBy: raw.reviewed_by ?? null,
     status: raw.status ?? 'Pending',
-    fieldDecisions: raw.field_decisions
+    fieldDecisions: (raw.field_decisions && typeof raw.field_decisions === 'object' && !Array.isArray(raw.field_decisions))
       ? Object.keys(raw.field_decisions).reduce((acc, key) => {
           const dec = raw.field_decisions[key]
-          if (dec) {
+          if (dec && typeof dec === 'object' && (dec.status === 'approved' || dec.status === 'rejected')) {
             acc[key] = {
               status: dec.status,
               reason: dec.reason ?? undefined,
@@ -291,24 +294,48 @@ export async function fetchInvestor(id: string): Promise<InvestorWithPortfolio |
 // --- Investments ---
 
 export async function fetchInvestments(): Promise<InvestmentWithDetails[]> {
-  const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
-  if (!res.ok) throw new Error('Failed to fetch investments')
-  const text = await res.text()
-  if (!text) return []
-  const data = JSON.parse(text)
-  return data.map(mapInvestment)
+  try {
+    const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
+    if (!res.ok) {
+      console.error('[fetchInvestments] Failed to fetch investments', res.status)
+      return []
+    }
+    const text = await res.text()
+    if (!text) return []
+    const data = JSON.parse(text)
+    if (!Array.isArray(data)) return []
+    return data.map(mapInvestmentWithDetails)
+  } catch (e) {
+    console.error('[fetchInvestments] Error parsing/fetching investments', e)
+    return []
+  }
 }
 
 export async function fetchRecentInvestments(limit: number = 6): Promise<InvestmentFull[]> {
-  const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
-  if (!res.ok) throw new Error('Failed to fetch investments')
-  const text = await res.text()
-  if (!text) return []
-  const data = JSON.parse(text)
-  const investments = data.map(mapInvestmentFull)
-  return investments
-    .sort((a: InvestmentFull, b: InvestmentFull) => new Date(b.investDate).getTime() - new Date(a.investDate).getTime())
-    .slice(0, limit)
+  try {
+    const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
+    if (!res.ok) {
+      console.error('[fetchRecentInvestments] Failed to fetch investments', res.status)
+      return []
+    }
+    const text = await res.text()
+    if (!text) return []
+    const data = JSON.parse(text)
+    if (!Array.isArray(data)) return []
+    const investments = data.map(mapInvestmentFull)
+    return investments
+      .sort((a, b) => {
+        const timeA = a.investDate ? new Date(a.investDate).getTime() : 0
+        const timeB = b.investDate ? new Date(b.investDate).getTime() : 0
+        const valA = isNaN(timeA) ? 0 : timeA
+        const valB = isNaN(timeB) ? 0 : timeB
+        return valB - valA
+      })
+      .slice(0, limit)
+  } catch (e) {
+    console.error('[fetchRecentInvestments] Error parsing/fetching investments', e)
+    return []
+  }
 }
 
 export async function fetchTopIndustries(limit: number = 6): Promise<string[]> {
@@ -570,8 +597,7 @@ export async function requestCompanyRevision(
   companyId: string,
   proposedChanges: Record<string, unknown>,
   token: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any> {
+): Promise<CompanyRevision> {
   const res = await authFetch(`${API_BASE}/user/revisions`, {
     method: 'POST',
     headers: {
@@ -589,7 +615,8 @@ export async function requestCompanyRevision(
     console.error(`[requestCompanyRevision] Failed with status ${res.status}: ${errorBody}`)
     throw new Error('Failed to request company revision')
   }
-  return res.json()
+  const data = await res.json()
+  return mapCompanyRevision(data)
 }
 
 export async function fetchMyRevisions(token: string): Promise<CompanyRevision[]> {
@@ -608,4 +635,38 @@ export async function fetchMyRevisions(token: string): Promise<CompanyRevision[]
   if (!data || !Array.isArray(data)) return []
   return data.map(mapCompanyRevision)
 }
+
+export async function fetchMyManagedCompanies(token: string): Promise<Company[]> {
+  const res = await authFetch(`${API_BASE}/user/companies/my-managed-companies`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+    cache: 'no-store'
+  })
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => 'No body')
+    console.error(`[fetchMyManagedCompanies] Failed with status ${res.status}: ${errorBody}`)
+    return []
+  }
+  const data = await res.json()
+  if (!data || !Array.isArray(data)) return []
+  return data.map((raw: unknown) => {
+    const rawObj = raw as Record<string, unknown>
+    const company = mapCompany(rawObj) as CompanyWithRelations
+    if (Array.isArray(rawObj.investments)) {
+      company.investments = rawObj.investments.map((inv: unknown) => mapInvestmentWithDetails(inv))
+    }
+    if (Array.isArray(rawObj.companies_found)) {
+      company.founders = rawObj.companies_found.map((cf: unknown) => {
+        const cfObj = cf as Record<string, unknown>
+        const founderObj = (cfObj.founders ?? cfObj.founder ?? { id: (cfObj.founder_id as string) || (cfObj.founderId as string) || '' })
+        return {
+          ...mapFounder(founderObj),
+          role: (cfObj.role as string) ?? '',
+          isActive: (cfObj.is_active as boolean) ?? (cfObj.isActive as boolean) ?? true,
+        }
+      })
+    }
+    return company
+  })
+}
+
 
