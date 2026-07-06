@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   Company,
   Investor,
@@ -14,7 +15,7 @@ import type {
   FundraisingPost
 } from './types'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapCompany(raw: any): Company {
   return {
     id: raw.id,
@@ -45,7 +46,7 @@ export function mapCompany(raw: any): Company {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapInvestor(raw: any): Investor {
   return {
     id: raw.id,
@@ -62,7 +63,7 @@ export function mapInvestor(raw: any): Investor {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapFounder(raw: any): Founder {
   return {
     id: raw.id,
@@ -81,7 +82,7 @@ export function mapFounder(raw: any): Founder {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapFundingRound(raw: any): FundingRound {
   return {
     id: raw.id,
@@ -92,7 +93,7 @@ export function mapFundingRound(raw: any): FundingRound {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapInvestment(raw: any): Investment {
   return {
     id: raw.id,
@@ -110,7 +111,7 @@ export function mapInvestment(raw: any): Investment {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapInvestmentWithDetails(raw: any): InvestmentWithDetails {
   const rawInvestor = raw.investors ?? raw.investor
   const rawRound = raw.funding_rounds ?? raw.funding_round
@@ -121,7 +122,7 @@ export function mapInvestmentWithDetails(raw: any): InvestmentWithDetails {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapInvestmentFull(raw: any): InvestmentFull {
   const rawCompany = raw.companies ?? raw.company
   return {
@@ -132,13 +133,13 @@ export function mapInvestmentFull(raw: any): InvestmentFull {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapCompanyWithRelations(raw: any): CompanyWithRelations {
   const company = mapCompany(raw)
 
   // Map founders from companies_found junction
   const founders: FounderWithRole[] = (raw.companies_found ?? []).map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     (cf: any) => ({
       ...mapFounder(cf.founders ?? cf.founder ?? { id: cf.founder_id || cf.founderId || '' }),
       role: cf.role ?? '',
@@ -152,7 +153,7 @@ export function mapCompanyWithRelations(raw: any): CompanyWithRelations {
   return { ...company, founders, investments }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapInvestorWithPortfolio(raw: any): InvestorWithPortfolio {
   const investor = mapInvestor(raw)
 
@@ -166,7 +167,7 @@ export function mapInvestorWithPortfolio(raw: any): InvestorWithPortfolio {
   return { ...investor, investments }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapCompanyRevision(raw: any): CompanyRevision {
   return {
     id: raw.id,
@@ -196,7 +197,7 @@ export function mapCompanyRevision(raw: any): CompanyRevision {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function parseTags(tags: any): string[] {
   if (Array.isArray(tags)) return tags
   if (typeof tags === 'string' && tags.trim()) {
@@ -209,7 +210,7 @@ export function parseTags(tags: any): string[] {
   return []
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function mapFundraisingPost(p: any): FundraisingPost {
   let derivedStatus = p.status ?? 'Active'
   if (derivedStatus === 'Active' && p.deadline) {

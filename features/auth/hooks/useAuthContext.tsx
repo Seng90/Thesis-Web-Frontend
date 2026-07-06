@@ -3,6 +3,7 @@
 // JWT Token + User State Management
 // ==========================================
 
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client'
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -107,7 +108,7 @@ export function useSettings() {
       const data = await res.json()
       
       setProfileData(prev => ({ ...prev, avatarUrl: data.url }))
-    } catch (err) {
+    } catch {
       setProfileMsg({ type: 'error', text: 'Failed to upload image' })
     } finally {
       setIsUploadingAvatar(false)

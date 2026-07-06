@@ -1,5 +1,4 @@
-import { apiFetch, authFetch } from '@/lib/apiClient'
-import type { AuthUser } from '@/lib/types'
+import { authFetch } from '@/lib/apiClient'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 

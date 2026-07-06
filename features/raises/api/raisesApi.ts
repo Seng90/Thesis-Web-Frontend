@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiFetch, authFetch, API_BASE } from '@/lib/apiClient'
 import { mapFundraisingPost, mapFundingRound } from '@/lib/mappers'
 import type { FundraisingPost, PostReactionSummary, PostComment, FundingRound } from '@/lib/types'

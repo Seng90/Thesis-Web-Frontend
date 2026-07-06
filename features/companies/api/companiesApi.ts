@@ -3,13 +3,7 @@ import { mapCompany, mapCompanyWithRelations, mapCompanyRevision } from '@/lib/m
 import type {
   Company,
   CompanyWithRelations,
-  Founder,
-  FounderWithRole,
-  FundingRound,
-  Investment,
-  InvestmentWithDetails,
-  CompanyRevision,
-  RevisionFieldDecision
+  CompanyRevision
 } from '@/lib/types'
 
 

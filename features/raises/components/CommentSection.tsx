@@ -7,11 +7,10 @@ import { formatDistanceToNow } from 'date-fns'
 import { formatDate } from '@/lib/utils'
 
 interface CommentSectionProps {
-  postSlug: string
   postId: string
 }
 
-export default function CommentSection({ postSlug, postId }: CommentSectionProps) {
+export default function CommentSection({ postId }: CommentSectionProps) {
   const {
     user,
     comments,

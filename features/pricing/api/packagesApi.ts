@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { API_BASE } from '@/lib/apiClient'
 import type { Package } from '@/lib/types'
 
