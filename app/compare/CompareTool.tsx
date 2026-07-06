@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 'use client'
 
 import { useState, useEffect, useMemo, useRef } from 'react'
@@ -5,10 +6,11 @@ import { fetchCompany } from '@/features/companies/api/companiesApi'
 import type { Company, CompanyWithRelations } from '@/lib/types'
 import { Building2, Banknote, Users, Calendar, MapPin, ArrowRightLeft, LayoutGrid } from 'lucide-react'
 import { 
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts'
 import CompanyLogo from '@/components/ui/CompanyLogo'
+import { useChartDimensions } from '@/lib/useChartDimensions'
 
 interface CompareToolProps {
   companies: Company[]
@@ -28,10 +30,8 @@ const formatCurrency = (amount: number, currency = 'USD') => {
 export default function CompareTool({ companies }: CompareToolProps) {
   const [companyAId, setCompanyAId] = useState<string>('')
   const [companyBId, setCompanyBId] = useState<string>('')
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const [radarContainerRef, radarSize] = useChartDimensions()
+  const [barContainerRef, barSize] = useChartDimensions()
 
   const [companyAData, setCompanyAData] = useState<CompanyWithRelations | null>(null)
   const [companyBData, setCompanyBData] = useState<CompanyWithRelations | null>(null)
@@ -270,19 +270,17 @@ export default function CompareTool({ companies }: CompareToolProps) {
             {/* Overall Comparison (Radar) */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Overall Comparison (Relative Score)</h4>
-              <div className="h-[300px] w-full">
-                {mounted && (
-                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                      <PolarGrid stroke="#cbd5e1" strokeDasharray="3 3" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                      <RechartsTooltip wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg" />
-                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                      <Radar name={companyAData.name} dataKey={companyAData.name} stroke="#6366f1" fill="#6366f1" fillOpacity={0.5} />
-                      <Radar name={companyBData.name} dataKey={companyBData.name} stroke="#10b981" fill="#10b981" fillOpacity={0.5} />
-                    </RadarChart>
-                  </ResponsiveContainer>
+              <div ref={radarContainerRef} className="h-[300px] w-full">
+                {radarSize.width > 0 && (
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" width={radarSize.width} height={radarSize.height} data={radarData}>
+                    <PolarGrid stroke="#cbd5e1" strokeDasharray="3 3" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <RechartsTooltip wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg" />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Radar name={companyAData.name} dataKey={companyAData.name} stroke="#6366f1" fill="#6366f1" fillOpacity={0.5} />
+                    <Radar name={companyBData.name} dataKey={companyBData.name} stroke="#10b981" fill="#10b981" fillOpacity={0.5} />
+                  </RadarChart>
                 )}
               </div>
             </div>
@@ -291,23 +289,21 @@ export default function CompareTool({ companies }: CompareToolProps) {
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Funding by Year ($M)</h4>
               {fundingByYearData.length > 0 ? (
-                <div className="h-[300px] w-full">
-                  {mounted && (
-                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                      <BarChart data={fundingByYearData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                        <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} tickFormatter={(val) => `$${val}M`} />
-                        <RechartsTooltip 
-                          cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
-                          wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg"
-                          formatter={(value: any) => [`$${value}M`, undefined]}
-                        />
-                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                        <Bar dataKey={companyAData.name} fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                        <Bar dataKey={companyBData.name} fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                <div ref={barContainerRef} className="h-[300px] w-full">
+                  {barSize.width > 0 && (
+                    <BarChart width={barSize.width} height={barSize.height} data={fundingByYearData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                      <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} tickFormatter={(val) => `$${val}M`} />
+                      <RechartsTooltip 
+                        cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
+                        wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg"
+                        formatter={(value: any) => [`$${value}M`, undefined]}
+                      />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      <Bar dataKey={companyAData.name} fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                      <Bar dataKey={companyBData.name} fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    </BarChart>
                   )}
                 </div>
               ) : (

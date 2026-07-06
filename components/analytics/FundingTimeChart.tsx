@@ -1,23 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
+  Tooltip
 } from 'recharts'
 import { InvestmentWithDetails } from '@/lib/types'
 import { formatCurrency } from '@/lib/utils'
+import { useChartDimensions } from '@/lib/useChartDimensions'
 
 export default function FundingTimeChart({ investments }: { investments: InvestmentWithDetails[] }) {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const [containerRef, { width, height }] = useChartDimensions()
   const data = useMemo(() => {
     const yearlyData: Record<string, number> = {}
 
@@ -41,46 +39,45 @@ export default function FundingTimeChart({ investments }: { investments: Investm
   }
 
   return (
-    <div className="h-[300px] w-full">
-      {mounted && (
-        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-surface-700" />
-            <XAxis 
-              dataKey="year" 
-              axisLine={false} 
-              tickLine={false} 
-              tick={{ fill: '#64748b', fontSize: 12 }} 
-              dy={10}
-            />
-            <YAxis 
-              axisLine={false} 
-              tickLine={false} 
-              tick={{ fill: '#64748b', fontSize: 12 }}
-              tickFormatter={(value) => `$${(value / 1000000).toFixed(0)}M`}
-              dx={-10}
-            />
-            <Tooltip 
-              cursor={{ fill: '#f1f5f9', className: 'dark:fill-surface-700/50' }}
-              contentStyle={{ 
-                borderRadius: '12px', 
-                border: 'none', 
-                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                color: '#0f172a'
-              }}
-              formatter={(value: any) => [formatCurrency(Number(value) || 0), 'Raised']}
-              labelStyle={{ color: '#64748b', marginBottom: '4px' }}
-            />
-            <Bar 
-              dataKey="amount" 
-              fill="#4f46e5" 
-              radius={[4, 4, 0, 0]} 
-              maxBarSize={50}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+    <div ref={containerRef} className="h-[300px] w-full">
+      {width > 0 && (
+        <BarChart width={width} height={height} data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" className="dark:stroke-surface-700" />
+          <XAxis 
+            dataKey="year" 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: '#64748b', fontSize: 12 }} 
+            dy={10}
+          />
+          <YAxis 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fill: '#64748b', fontSize: 12 }}
+            tickFormatter={(value) => `$${(value / 1000000).toFixed(0)}M`}
+            dx={-10}
+          />
+          <Tooltip 
+            cursor={{ fill: '#f1f5f9', className: 'dark:fill-surface-700/50' }}
+            contentStyle={{ 
+              borderRadius: '12px', 
+              border: 'none', 
+              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              color: '#0f172a'
+            }}
+            formatter={(value: any) => [formatCurrency(Number(value) || 0), 'Raised']}
+            labelStyle={{ color: '#64748b', marginBottom: '4px' }}
+          />
+          <Bar 
+            dataKey="amount" 
+            fill="#4f46e5" 
+            radius={[4, 4, 0, 0]} 
+            maxBarSize={50}
+          />
+        </BarChart>
       )}
     </div>
   )
 }
+
