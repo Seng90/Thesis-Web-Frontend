@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
-import { fetchPostReactions } from '@/lib/api'
+import { fetchPostReactions } from '@/features/raises/api/raisesApi'
 import type { PostReactionSummary } from '@/lib/types'
 import ReactionButtons from './ReactionButtons'
 

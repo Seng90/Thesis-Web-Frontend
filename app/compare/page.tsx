@@ -1,4 +1,4 @@
-import { fetchCompanies } from '@/lib/api'
+import { fetchCompanies } from '@/features/companies/api/companiesApi'
 import CompareTool from './CompareTool'
 import PremiumGuard from '@/components/auth/PremiumGuard'
 import type { Metadata } from 'next'

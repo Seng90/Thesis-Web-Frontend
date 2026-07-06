@@ -1,6 +1,6 @@
 import DashboardClient from '@/components/dashboard/DashboardClient'
 import { fundingOverTimeData, sectorDistributionData, topInvestorsMock } from '@/lib/dashboard-mock'
-import { fetchStats } from '@/lib/api'
+import { fetchStats } from '@/features/analytics/api/statsApi'
 import PremiumGuard from '@/components/auth/PremiumGuard'
 import type { Metadata } from 'next'
 

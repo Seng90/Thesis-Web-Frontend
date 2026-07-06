@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { fetchFounder, fetchFounderCompanies } from '@/lib/api'
+import { fetchFounder, fetchFounderCompanies } from '@/features/founders/api/foundersApi'
 import { getInitials, getNameColor } from '@/lib/utils'
 import { ChevronLeft, ExternalLink, Briefcase } from 'lucide-react'
 import CompanyLogo from '@/components/ui/CompanyLogo'

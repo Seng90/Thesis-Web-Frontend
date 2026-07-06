@@ -2,7 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { fetchCompanies, fetchInvestments } from '@/lib/api'
+import { fetchCompanies } from '@/features/companies/api/companiesApi'
+import { fetchInvestments } from '@/features/investors/api/investorsApi'
 import type { Company, Investment } from '@/lib/types'
 import SearchBar from '@/components/ui/SearchBar'
 import CompanyCard from '@/components/cards/CompanyCard'

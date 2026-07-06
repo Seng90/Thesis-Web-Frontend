@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { fetchFounders } from '@/lib/api'
+import { fetchFounders } from '@/features/founders/api/foundersApi'
 import type { Founder } from '@/lib/types'
 import SearchBar from '@/components/ui/SearchBar'
 import FounderCard from '@/components/cards/FounderCard'

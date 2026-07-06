@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 import { Building2, Save, FileText, LayoutList, Target, Calendar, Clock, Tag, Link2, Mail, Loader2, ImagePlus, UploadCloud, AlertCircle, RefreshCw } from 'lucide-react'
-import { fetchFundraisingPostBySlug, updateFundraisingPost, repostFundraisingPost } from '@/lib/api'
+import { fetchFundraisingPostBySlug, updateFundraisingPost, repostFundraisingPost } from '@/features/raises/api/raisesApi'
 import type { FundraisingPost } from '@/lib/types'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'

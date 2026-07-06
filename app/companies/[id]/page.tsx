@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { fetchCompany } from '@/lib/api'
+import { fetchCompany } from '@/features/companies/api/companiesApi'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import CompanyLogo from '@/components/ui/CompanyLogo'

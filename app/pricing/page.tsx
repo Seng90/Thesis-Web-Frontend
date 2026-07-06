@@ -1,5 +1,5 @@
 import type { Package } from '@/lib/types'
-import { fetchPackages } from '@/lib/api'
+import { fetchPackages } from '@/features/pricing/api/packagesApi'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Check, Sparkles, Lock, Zap, Crown, ArrowRight } from 'lucide-react'

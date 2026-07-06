@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useAuth, hasPermission } from '@/lib/auth'
-import { fetchMyRevisions } from '@/lib/api'
+import { fetchMyRevisions } from '@/features/companies/api/companiesApi'
 import { formatDate } from '@/lib/utils'
 import { 
   ArrowLeft, 

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { fetchInvestor } from '@/lib/api'
+import { fetchInvestor } from '@/features/investors/api/investorsApi'
 import { getInitials, getNameColor, formatDate, formatCurrency } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import CompanyCard from '@/components/cards/CompanyCard'

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Bell, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth, hasPermission } from '@/lib/auth'
-import { fetchMyPosts } from '@/lib/api'
+import { fetchMyPosts } from '@/features/raises/api/raisesApi'
 import type { FundraisingPost } from '@/lib/types'
 
 export default function NotificationsBell() {

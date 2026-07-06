@@ -1,4 +1,4 @@
-import { fetchFundraisingPostBySlug } from '@/lib/api'
+import { fetchFundraisingPostBySlug } from '@/features/raises/api/raisesApi'
 import { ArrowLeft, Calendar, ExternalLink, Mail, Target } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'

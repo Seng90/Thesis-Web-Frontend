@@ -3,6 +3,18 @@
 // Matches Database Schema (11 Tables)
 // ==========================================
 
+// --- Auth ---
+
+export interface AuthUser {
+  id: string
+  username?: string
+  email?: string
+  role?: string
+  roles: string[]
+  permissions: string[]
+  avatarUrl?: string
+}
+
 // --- Core Entities ---
 
 export interface Admin {

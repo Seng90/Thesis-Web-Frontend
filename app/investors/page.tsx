@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { fetchInvestors, fetchInvestments } from '@/lib/api'
+import { fetchInvestors, fetchInvestments } from '@/features/investors/api/investorsApi'
 import type { Investor } from '@/lib/types'
 import SearchBar from '@/components/ui/SearchBar'
 import InvestorCard from '@/components/cards/InvestorCard'

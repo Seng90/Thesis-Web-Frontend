@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { fetchFundraisingPosts } from '@/lib/api'
+import { fetchFundraisingPosts } from '@/features/raises/api/raisesApi'
 import RaisesClient from './RaisesClient'
 import type { FundraisingPost } from '@/lib/types'
 

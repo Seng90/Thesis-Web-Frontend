@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth, hasPermission } from '@/lib/auth'
-import { fetchMyPosts, cancelFundraisingPost } from '@/lib/api'
+import { fetchMyPosts, cancelFundraisingPost } from '@/features/raises/api/raisesApi'
 import type { FundraisingPost } from '@/lib/types'
 import { AlertCircle, Edit, XCircle, ArrowLeft, Loader2, Calendar } from 'lucide-react'
 

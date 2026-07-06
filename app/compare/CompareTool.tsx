@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { fetchCompany } from '@/lib/api'
+import { fetchCompany } from '@/features/companies/api/companiesApi'
 import type { Company, CompanyWithRelations } from '@/lib/types'
 import { Building2, Banknote, Users, Calendar, MapPin, ArrowRightLeft, LayoutGrid } from 'lucide-react'
 import { 
