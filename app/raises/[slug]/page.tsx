@@ -177,7 +177,7 @@ export default async function FundraisingPostDetail({ params }: { params: Promis
         </div>
 
         {/* Comment Section */}
-        <CommentSection postSlug={post.slug} postId={post.id} />
+        <CommentSection postId={post.id} />
 
       </article>
     </div>

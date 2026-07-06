@@ -18,7 +18,7 @@ export async function fetchFundraisingPostBySlug(slug: string): Promise<Fundrais
 }
 
 export async function fetchMyPosts(token: string): Promise<FundraisingPost[]> {
-  const res = await authFetch(`${API_BASE}/user/fundraising-posts/my`, {
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/my-posts`, {
     headers: { 'Authorization': `Bearer ${token}` },
     cache: 'no-store'
   })
@@ -103,7 +103,7 @@ export async function addPostComment(postId: string, content: string, token: str
 
 export async function updateFundraisingPost(id: string, token: string, payload: Record<string, any>) {
   const res = await authFetch(`${API_BASE}/user/fundraising-posts/${id}`, {
-    method: 'PUT',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -116,7 +116,7 @@ export async function updateFundraisingPost(id: string, token: string, payload: 
 
 export async function repostFundraisingPost(id: string, token: string) {
   const res = await authFetch(`${API_BASE}/user/fundraising-posts/${id}/repost`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: { 'Authorization': `Bearer ${token}` }
   })
   if (!res.ok) throw new Error('Failed to repost post')
@@ -124,8 +124,8 @@ export async function repostFundraisingPost(id: string, token: string) {
 }
 
 export async function cancelFundraisingPost(id: string, token: string) {
-  const res = await authFetch(`${API_BASE}/user/raises/${id}/cancel`, {
-    method: 'POST',
+  const res = await authFetch(`${API_BASE}/user/fundraising-posts/${id}/cancel`, {
+    method: 'PATCH',
     headers: { 'Authorization': `Bearer ${token}` }
   })
   if (!res.ok) throw new Error('Failed to cancel post')
