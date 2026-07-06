@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { Bell, AlertCircle, Loader2 } from 'lucide-react'
-import { useAuth } from '@/lib/auth'
+import { useAuth, hasPermission } from '@/lib/auth'
 import { fetchMyPosts } from '@/lib/api'
 import type { FundraisingPost } from '@/lib/types'
 
@@ -32,7 +32,7 @@ export default function NotificationsBell() {
       }
     }
 
-    if (user && token && user.role?.toLowerCase() === 'founder') {
+    if (user && token && hasPermission(user, 'create:fundraising-posts')) {
       loadNotifications()
     }
   }, [user, token, pathname])

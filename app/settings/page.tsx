@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/auth'
+import { useAuth, hasPermission, type AuthUser } from '@/lib/auth'
 import { User, Lock, Bell, Palette, UploadCloud, Loader2, Save, CheckCircle2, AlertCircle, LayoutList, Building2 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
@@ -46,21 +46,33 @@ export default function SettingsPage() {
         })
         if (res.ok) {
           const data = await res.json()
+          const userRoles = data.roles || (data.role ? [data.role.toLowerCase()] : [])
+          const userPermissions = data.permissions || []
           setProfileData({
             username: data.username || '',
             email: data.email || '',
             avatarUrl: data.avatarUrl || data.avatar_url || '',
-            role: data.role || 'Member',
+            role: data.roles?.[0] || data.role || 'Member',
             packageId: data.packageId || 'Free Plan',
             status: data.status || 'Active'
           })
           // Update global context silently in case avatar changed elsewhere
-          updateUser({
+          const updatedUserData: Partial<AuthUser> = {
             username: data.username,
             email: data.email,
             avatarUrl: data.avatarUrl || data.avatar_url,
-            role: data.role
-          })
+          }
+          if (data.role) {
+            updatedUserData.role = data.role
+          }
+          if (data.roles && data.roles.length > 0) {
+            updatedUserData.roles = data.roles
+            updatedUserData.role = data.roles[0]
+          }
+          if (data.permissions && data.permissions.length > 0) {
+            updatedUserData.permissions = data.permissions
+          }
+          updateUser(updatedUserData)
         }
       } catch (err) {
         console.error('Failed to fetch profile', err)
@@ -132,7 +144,10 @@ export default function SettingsPage() {
       if (!res.ok) throw new Error('Failed to update profile')
       
       setProfileMsg({ type: 'success', text: 'Profile updated successfully' })
-      updateUser(profileData) // Update global state
+      updateUser({
+        username: profileData.username,
+        avatarUrl: profileData.avatarUrl
+      })
     } catch (err: any) {
       setProfileMsg({ type: 'error', text: err.message || 'Something went wrong' })
     } finally {
@@ -242,7 +257,7 @@ export default function SettingsPage() {
               
               <div className="my-2 border-t border-surface-200 dark:border-white/5"></div>
               
-              {user?.role?.toLowerCase() === 'founder' && (
+              {user && hasPermission(user, 'create:fundraising-posts') && (
                 <>
                   <Link
                     href="/raises/my-posts"

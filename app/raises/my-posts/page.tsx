@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/lib/auth'
+import { useAuth, hasPermission } from '@/lib/auth'
 import { fetchMyPosts, cancelFundraisingPost } from '@/lib/api'
 import type { FundraisingPost } from '@/lib/types'
 import { AlertCircle, Edit, XCircle, ArrowLeft, Loader2, Calendar } from 'lucide-react'
@@ -19,7 +19,7 @@ export default function MyPostsPage() {
     if (!isLoading) {
       if (!user) {
         router.push('/login?redirect=/raises/my-posts')
-      } else if (user.role?.toLowerCase() !== 'founder') {
+      } else if (!hasPermission(user, 'create:fundraising-posts')) {
         alert('ທ່ານຕ້ອງເປັນ Founder ຈຶ່ງສາມາດເຂົ້າເຖິງໄດ້')
         router.push('/')
       }
@@ -28,7 +28,7 @@ export default function MyPostsPage() {
 
   useEffect(() => {
     async function load() {
-      if (!token || !user || user.role?.toLowerCase() !== 'founder') return
+      if (!token || !user || !hasPermission(user, 'create:fundraising-posts')) return
       try {
         const data = await fetchMyPosts(token)
         setPosts(data)

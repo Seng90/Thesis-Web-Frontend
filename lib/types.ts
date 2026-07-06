@@ -53,6 +53,7 @@ export interface Founder {
   pastExperience?: string
   twitterUrl?: string
   githubUrl?: string
+  avatarUrl?: string | null
   createdAt: string
   updatedAt: string
 }

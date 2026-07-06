@@ -46,7 +46,7 @@ export function getYear(dateString: string | null | undefined, fallback: string 
   if (!dateString) return fallback
   const date = new Date(dateString)
   if (isNaN(date.getTime())) return fallback
-  return date.getFullYear().toString()
+  return date.getUTCFullYear().toString()
 }
 
 /**

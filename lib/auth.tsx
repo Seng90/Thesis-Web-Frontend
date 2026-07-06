@@ -16,6 +16,8 @@ export interface AuthUser {
   username?: string
   email?: string
   role?: string
+  roles: string[]
+  permissions: string[]
   avatarUrl?: string
 }
 
@@ -39,6 +41,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const clearSession = () => {
+    setToken(null)
+    setUser(null)
+    localStorage.removeItem('investrack_token')
+    localStorage.removeItem('investrack_refresh_token')
+    localStorage.removeItem('investrack_user')
+  }
+
+  const persistSession = (newToken: string, newRefreshToken: string | null, newUser: AuthUser) => {
+    setToken(newToken)
+    setUser(newUser)
+    localStorage.setItem('investrack_token', newToken)
+    if (newRefreshToken) localStorage.setItem('investrack_refresh_token', newRefreshToken)
+    localStorage.setItem('investrack_user', JSON.stringify(newUser))
+  }
+
   // Restore session from localStorage on mount
   useEffect(() => {
     try {
@@ -58,7 +76,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const handleTokenRefreshed = ((e: CustomEvent<string>) => {
-      setToken(e.detail)
+      const newToken = e.detail
+      setToken(newToken)
+      try {
+        const base64Url = newToken.split('.')[1]
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        )
+        const payload = JSON.parse(jsonPayload)
+        const authUser: AuthUser = {
+          id: payload.sub ?? payload.id ?? '',
+          username: payload.username ?? '',
+          email: payload.email ?? '',
+          role: payload.roles?.[0] ?? 'user',
+          roles: payload.roles ?? [],
+          permissions: payload.permissions ?? [],
+          avatarUrl: payload.avatar_url ?? payload.avatarUrl ?? '',
+        }
+        setUser(authUser)
+        localStorage.setItem('investrack_user', JSON.stringify(authUser))
+      } catch (err) {
+        console.error('Failed to decode refreshed token', err)
+      }
     }) as EventListener
 
     const handleForceLogout = () => {
@@ -75,27 +118,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Save to localStorage when token/user changes
-  const persistSession = (newToken: string, newRefreshToken: string | null, newUser: AuthUser) => {
-    setToken(newToken)
-    setUser(newUser)
-    localStorage.setItem('investrack_token', newToken)
-    if (newRefreshToken) localStorage.setItem('investrack_refresh_token', newRefreshToken)
-    localStorage.setItem('investrack_user', JSON.stringify(newUser))
-  }
-
-  const clearSession = () => {
-    setToken(null)
-    setUser(null)
-    localStorage.removeItem('investrack_token')
-    localStorage.removeItem('investrack_refresh_token')
-    localStorage.removeItem('investrack_user')
-  }
 
   // --- Login ---
   const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await fetch(`${API_BASE}/auth/member/login`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -114,7 +141,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.user?.id ?? '',
         username: data.user?.username ?? '',
         email: data.user?.email ?? email,
-        role: data.user?.role ?? 'user',
+        role: data.user?.roles?.[0] ?? 'user',
+        roles: data.user?.roles ?? [],
+        permissions: data.user?.permissions ?? [],
         avatarUrl: data.user?.avatar_url ?? data.user?.avatarUrl ?? '',
       }
 
@@ -155,7 +184,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [login])
 
-  // --- Login with Token (Google Auth) ---
   const loginWithToken = useCallback((newToken: string, refreshToken?: string) => {
     try {
       // Decode JWT payload (base64)
@@ -173,7 +201,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: payload.sub ?? payload.id ?? '',
         username: payload.username ?? '',
         email: payload.email ?? '',
-        role: payload.role ?? 'user',
+        role: payload.roles?.[0] ?? 'user',
+        roles: payload.roles ?? [],
+        permissions: payload.permissions ?? [],
         avatarUrl: payload.avatar_url ?? payload.avatarUrl ?? '',
       }
 
@@ -214,4 +244,16 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
+}
+
+export function hasPermission(user: AuthUser | null, permission: string): boolean {
+  return user?.permissions?.includes(permission) ?? false
+}
+
+export function hasAnyPermission(user: AuthUser | null, permissions: string[]): boolean {
+  return permissions.some(p => user?.permissions?.includes(p))
+}
+
+export function hasRole(user: AuthUser | null, role: string): boolean {
+  return user?.roles?.includes(role) ?? false
 }

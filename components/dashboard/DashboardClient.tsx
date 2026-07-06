@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { DollarSign, Building2, Users, TrendingUp, ArrowUpRight } from 'lucide-react'
 import {
   AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -23,6 +24,10 @@ const COLORS = [
 ]
 
 export default function DashboardClient({ stats, fundingOverTime, sectorDistribution, topInvestors }: DashboardClientProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   const statCards = [
     { label: 'Total Funding', value: `$${stats.totalFunding.toFixed(1)}M`, icon: DollarSign, color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-100 dark:bg-indigo-900/50' },
     { label: 'Companies Tracked', value: stats.companiesTracked.toString(), icon: Building2, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/50' },
@@ -55,24 +60,26 @@ export default function DashboardClient({ stats, fundingOverTime, sectorDistribu
             Cumulative Funding Over Time
           </h2>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-              <AreaChart data={fundingOverTime}>
-                <defs>
-                  <linearGradient id="gradFunding" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} tickFormatter={(v) => `$${v}M`} />
-                <Tooltip
-                  wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg"
-                  formatter={(value: any) => [`$${value.toFixed(1)}M`, 'Total Funding']}
-                />
-                <Area type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={3} fill="url(#gradFunding)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                <AreaChart data={fundingOverTime}>
+                  <defs>
+                    <linearGradient id="gradFunding" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} tickFormatter={(v) => `$${v}M`} />
+                  <Tooltip
+                    wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg"
+                    formatter={(value: any) => [`$${value.toFixed(1)}M`, 'Total Funding']}
+                  />
+                  <Area type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={3} fill="url(#gradFunding)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -82,30 +89,31 @@ export default function DashboardClient({ stats, fundingOverTime, sectorDistribu
             Funding by Sector
           </h2>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-              <PieChart>
-                <Pie
-                  data={sectorDistribution}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={110}
-                  paddingAngle={5}
-                  dataKey="value"
-                  label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                  labelLine={false}
-                  stroke="none"
-                >
-                  {sectorDistribution.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg"
-                  formatter={(value: any) => [`$${value.toFixed(1)}M`, 'Funding']}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                <PieChart>
+                  <Pie
+                    data={sectorDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={110}
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, percent }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                    stroke="none"
+                  >
+                    {sectorDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'][index % 6]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    wrapperClassName="dark:!bg-slate-800 dark:!border-slate-700 dark:!text-slate-200 rounded-lg shadow-lg"
+                    formatter={(value: any) => [`$${value.toFixed(1)}M`, 'Funding']}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>

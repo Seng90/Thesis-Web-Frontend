@@ -89,6 +89,7 @@ function mapFounder(raw: any): Founder {
     pastExperience: raw.past_experience ?? undefined,
     twitterUrl: raw.twitter_url ?? undefined,
     githubUrl: raw.github_url ?? undefined,
+    avatarUrl: raw.avatar_url ?? null,
     createdAt: raw.created_at ?? '',
     updatedAt: raw.updated_at ?? '',
   }
@@ -644,11 +645,37 @@ export async function fetchMyManagedCompanies(token: string): Promise<CompanyWit
   if (!res.ok) {
     const errorBody = await res.text().catch(() => 'No body')
     console.error(`[fetchMyManagedCompanies] Failed with status ${res.status}: ${errorBody}`)
-    return []
+    throw new Error('Failed to fetch managed companies')
   }
   const data = await res.json()
   if (!data || !Array.isArray(data)) return []
   return data.map(mapCompanyWithRelations)
 }
+
+export async function uploadImage(file: File, token: string): Promise<string> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const res = await fetch(`${API_BASE}/upload`, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token
+    },
+    body: formData
+  })
+
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => 'No body')
+    console.error(`[uploadImage] Failed with status ${res.status}: ${errorBody}`)
+    throw new Error('Failed to upload image')
+  }
+
+  const data = await res.json()
+  if (!data.url) {
+    throw new Error('Upload succeeded but no URL was returned')
+  }
+  return data.url
+}
+
 
 

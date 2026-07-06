@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/lib/auth'
+import { useAuth, hasPermission } from '@/lib/auth'
 import { fetchPostComments } from '@/lib/api'
 import type { PostComment } from '@/lib/types'
 import ReactionButtons from './ReactionButtons'
 import { formatDistanceToNow } from 'date-fns'
+import { formatDate } from '@/lib/utils'
 
 interface CommentSectionProps {
   postSlug: string
@@ -21,6 +22,12 @@ export default function CommentSection({ postSlug, postId }: CommentSectionProps
   const [isLoading, setIsLoading] = useState(true)
   const [newComment, setNewComment] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     async function loadComments() {
@@ -96,7 +103,7 @@ export default function CommentSection({ postSlug, postId }: CommentSectionProps
 
       {/* Comment Form */}
       {user ? (
-        user.role?.toLowerCase() === 'user' ? (
+        !hasPermission(user, 'create:comments') ? (
           <div className="mb-10 p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 text-center border border-zinc-200 dark:border-zinc-800/50">
             <p className="text-zinc-600 dark:text-zinc-400 mb-4">Upgrade to Membership to join the discussion and comment on posts.</p>
             <a href="/pricing" className="inline-flex px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">
@@ -171,7 +178,9 @@ export default function CommentSection({ postSlug, postId }: CommentSectionProps
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-semibold text-zinc-900 dark:text-zinc-50">{comment.username}</span>
                   <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                    {mounted 
+                      ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true }) 
+                      : formatDate(comment.createdAt)}
                   </span>
                 </div>
                 <p className="text-zinc-700 dark:text-zinc-300 mb-3 whitespace-pre-wrap">

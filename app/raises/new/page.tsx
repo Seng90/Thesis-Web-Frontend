@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/auth'
+import { useAuth, hasPermission } from '@/lib/auth'
 import { Building2, Save, FileText, LayoutList, Target, Calendar, Clock, Tag, Link2, Mail, Loader2, ImagePlus, UploadCloud } from 'lucide-react'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
@@ -47,7 +47,7 @@ export default function PostRaisePage() {
     if (!isAuthLoading) {
       if (!user) {
         router.push('/login?redirect=/raises/new')
-      } else if (user.role?.toLowerCase() !== 'founder') {
+      } else if (!hasPermission(user, 'create:fundraising-posts')) {
         alert('ທ່ານຕ້ອງເປັນ Founder ຈຶ່ງສາມາດເຂົ້າເຖິງໄດ້')
         router.push('/')
       }
