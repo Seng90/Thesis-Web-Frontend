@@ -62,7 +62,7 @@ export default function EditRaisePage() {
     async function fetchCompanies() {
       if (!token) return
       try {
-        const res = await fetch(`${API_BASE}/user/companies/my`, {
+        const res = await fetch(`${API_BASE}/user/companies/my-managed-companies`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         if (res.ok) {
