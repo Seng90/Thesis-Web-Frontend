@@ -89,9 +89,15 @@ export default function PostRaisePage() {
     const uploadData = new FormData()
     uploadData.append('file', file)
 
+    const headers: Record<string, string> = {}
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
     try {
       const res = await fetch(`${API_BASE}/upload`, {
         method: 'POST',
+        headers,
         body: uploadData,
         // Don't set Content-Type header, let browser set it with boundary for multipart/form-data
       })
