@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -48,8 +49,9 @@ export default function MyPostsPage() {
     try {
       await cancelFundraisingPost(id, token!)
       setPosts(prev => prev.map(p => p.id === id ? { ...p, status: 'Cancelled' } : p))
-    } catch (err: any) {
-      if (err.message && err.message.includes('403')) {
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : ''
+      if (errorMsg.includes('403')) {
         alert('ສິດທິຂອງທ່ານບໍ່ພຽງພໍສຳລັບການກະທຳນີ້')
       } else {
         alert('Failed to cancel post')
@@ -85,7 +87,7 @@ export default function MyPostsPage() {
 
         {posts.length === 0 ? (
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center shadow-sm">
-            <p className="text-slate-500 dark:text-slate-400 mb-6">You haven't posted any fundraising rounds yet.</p>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">You haven&apos;t posted any fundraising rounds yet.</p>
             <Link href="/raises/new" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
               Create a Raise
             </Link>

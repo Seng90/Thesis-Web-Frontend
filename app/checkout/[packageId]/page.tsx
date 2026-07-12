@@ -59,8 +59,9 @@ export default function CheckoutPage() {
 
       // Success
       router.push('/dashboard?payment=success')
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong')
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Something went wrong'
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }

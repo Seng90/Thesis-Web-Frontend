@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { fetchFounders } from '@/features/founders/api/foundersApi'
-import type { Founder } from '@/lib/types'
+import type { Founder, FounderWithRole } from '@/lib/types'
 import SearchBar from '@/components/ui/SearchBar'
 import FounderCard from '@/components/cards/FounderCard'
 import { Users } from 'lucide-react'
@@ -97,7 +97,7 @@ export default function FoundersPage() {
         ) : filteredFounders.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredFounders.map((founder) => (
-              <FounderCard key={founder.id} founder={founder as any} />
+              <FounderCard key={founder.id} founder={founder as FounderWithRole} />
             ))}
           </div>
         ) : (
@@ -107,7 +107,7 @@ export default function FoundersPage() {
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No founders found</h3>
             <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-              We couldn't find any founders matching "{searchQuery}".
+              We couldn&apos;t find any founders matching &quot;{searchQuery}&quot;.
             </p>
           </div>
         )}
@@ -115,3 +115,4 @@ export default function FoundersPage() {
     </div>
   )
 }
+

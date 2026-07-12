@@ -106,7 +106,7 @@ export default function PostRaisePage() {
       
       const data = await res.json()
       setFormData(prev => ({ ...prev, coverUrl: data.url }))
-    } catch (err) {
+    } catch {
       setError('Failed to upload image. Please try again.')
     } finally {
       setIsUploading(false)
@@ -128,7 +128,7 @@ export default function PostRaisePage() {
 
     try {
       // Format payload (numbers, tags)
-      const payload: Record<string, any> = {
+      const payload: Record<string, unknown> = {
         company_id: formData.companyId,
         title: formData.title,
         excerpt: formData.excerpt,
@@ -175,8 +175,9 @@ export default function PostRaisePage() {
         router.push('/raises')
       }, 2000)
 
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong')
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Something went wrong'
+      setError(errorMsg)
       setIsLoading(false)
     }
   }
@@ -212,7 +213,7 @@ export default function PostRaisePage() {
         <div className="mb-8 animate-slide-up">
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Post a Raise</h1>
           <p className="mt-2 text-slate-600 dark:text-slate-400">
-            Share your startup's fundraising round with our investor network.
+            Share your startup&apos;s fundraising round with our investor network.
           </p>
         </div>
 

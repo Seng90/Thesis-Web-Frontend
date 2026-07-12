@@ -31,12 +31,12 @@ export default async function PricingPage() {
 
   const isPro = (name: string) => name.toLowerCase() === 'premium' || name.toLowerCase() === 'pro' || name.toLowerCase() === 'enterprise'
 
-  const parseFeatures = (feat: any): string[] => {
-    if (Array.isArray(feat)) return feat
+  const parseFeatures = (feat: unknown): string[] => {
+    if (Array.isArray(feat)) return feat as string[]
     if (typeof feat === 'string') {
       try {
         const parsed = JSON.parse(feat)
-        if (Array.isArray(parsed)) return parsed
+        if (Array.isArray(parsed)) return parsed as string[]
         if (typeof parsed === 'object' && parsed !== null) {
           return Object.entries(parsed).map(([k, v]) => {
             const keyFormatted = k.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')

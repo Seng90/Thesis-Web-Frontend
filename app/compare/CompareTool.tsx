@@ -42,25 +42,37 @@ export default function CompareTool({ companies }: CompareToolProps) {
   // Fetch full data when ID changes
   useEffect(() => {
     if (!companyAId) {
-      setCompanyAData(null)
+      requestAnimationFrame(() => {
+        setCompanyAData(null)
+      })
       return
     }
-    setLoadingA(true)
+    requestAnimationFrame(() => {
+      setLoadingA(true)
+    })
     fetchCompany(companyAId).then(data => {
-      setCompanyAData(data)
-      setLoadingA(false)
+      requestAnimationFrame(() => {
+        setCompanyAData(data)
+        setLoadingA(false)
+      })
     })
   }, [companyAId])
 
   useEffect(() => {
     if (!companyBId) {
-      setCompanyBData(null)
+      requestAnimationFrame(() => {
+        setCompanyBData(null)
+      })
       return
     }
-    setLoadingB(true)
+    requestAnimationFrame(() => {
+      setLoadingB(true)
+    })
     fetchCompany(companyBId).then(data => {
-      setCompanyBData(data)
-      setLoadingB(false)
+      requestAnimationFrame(() => {
+        setCompanyBData(data)
+        setLoadingB(false)
+      })
     })
   }, [companyBId])
 

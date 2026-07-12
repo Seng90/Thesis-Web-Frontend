@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
       } else {
         setError(data.message || 'Failed to send OTP')
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again later.')
     } finally {
       setIsLoading(false)
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
       } else {
         setError(data.message || 'Failed to reset password')
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred. Please try again later.')
     } finally {
       setIsLoading(false)

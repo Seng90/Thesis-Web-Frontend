@@ -31,7 +31,9 @@ export default function MyRevisionsPage() {
     if (authLoading) return
 
     if (!user || !hasPermission(user, 'read:own-revisions')) {
-      setLoading(false)
+      requestAnimationFrame(() => {
+        setLoading(false)
+      })
       return
     }
 
@@ -43,9 +45,10 @@ export default function MyRevisionsPage() {
         // Sort newest first
         const sorted = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         setRevisions(sorted)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('[MyRevisionsPage] Fetch error:', err)
-        setError(err.message || 'Failed to load revision history.')
+        const errorMsg = err instanceof Error ? err.message : 'Failed to load revision history.'
+        setError(errorMsg)
       } finally {
         setLoading(false)
       }

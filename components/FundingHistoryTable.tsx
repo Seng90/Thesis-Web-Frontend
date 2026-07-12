@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { ChevronDown, ChevronRight, Calendar, Banknote, User, Tag, ExternalLink } from 'lucide-react'
+import { ChevronDown, ChevronRight, Banknote, User, Tag, ExternalLink } from 'lucide-react'
 import type { InvestmentWithDetails } from '@/lib/types'
 
 interface GroupedInvestment {

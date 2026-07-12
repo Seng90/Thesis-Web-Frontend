@@ -68,8 +68,10 @@ export default function Navbar() {
 
   // Close mobile menu on route change
   useEffect(() => {
-    setIsOpen(false)
-    setDropdownOpen(false)
+    requestAnimationFrame(() => {
+      setIsOpen(false)
+      setDropdownOpen(false)
+    })
   }, [pathname])
 
   // Click outside to close dropdown

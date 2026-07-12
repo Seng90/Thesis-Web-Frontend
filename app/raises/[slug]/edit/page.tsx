@@ -9,11 +9,6 @@ import type { FundraisingPost } from '@/lib/types'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
-interface Company {
-  id: string
-  name: string
-}
-
 export default function EditRaisePage() {
   const { user, token, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
@@ -27,8 +22,6 @@ export default function EditRaisePage() {
   const [isReposting, setIsReposting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
-  const [companies, setCompanies] = useState<Company[]>([])
-  const [isCompaniesLoading, setIsCompaniesLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
 
   // Form State
@@ -57,26 +50,7 @@ export default function EditRaisePage() {
     }
   }, [user, isAuthLoading, router])
 
-  // Fetch Companies
-  useEffect(() => {
-    async function fetchCompanies() {
-      if (!token) return
-      try {
-        const res = await fetch(`${API_BASE}/user/companies/my-managed-companies`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        if (res.ok) {
-          const data = await res.json()
-          setCompanies(data)
-        }
-      } catch (err) {
-        console.error('Failed to fetch companies', err)
-      } finally {
-        setIsCompaniesLoading(false)
-      }
-    }
-    fetchCompanies()
-  }, [token])
+
 
   // Fetch Existing Post Data
   useEffect(() => {
@@ -111,7 +85,7 @@ export default function EditRaisePage() {
         } else {
           setError('Post not found')
         }
-      } catch (err) {
+      } catch {
         setError('Failed to load post')
       } finally {
         setIsPostLoading(false)
@@ -151,7 +125,7 @@ export default function EditRaisePage() {
       
       const data = await res.json()
       setFormData(prev => ({ ...prev, coverUrl: data.url }))
-    } catch (err) {
+    } catch {
       setError('Failed to upload image. Please try again.')
     } finally {
       setIsUploading(false)
@@ -173,7 +147,7 @@ export default function EditRaisePage() {
 
     try {
       // Format payload (numbers, tags)
-      const payload: Record<string, any> = {
+      const payload: Record<string, unknown> = {
         company_id: formData.companyId,
         title: formData.title,
         excerpt: formData.excerpt,
@@ -205,8 +179,9 @@ export default function EditRaisePage() {
         router.push(`/raises/${slug}`)
       }, 2000)
 
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong')
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Something went wrong'
+      setError(errorMsg)
       setIsLoading(false)
     }
   }
@@ -217,7 +192,7 @@ export default function EditRaisePage() {
     setError('')
     try {
       // First save changes
-      const payload: Record<string, any> = {
+      const payload: Record<string, unknown> = {
         title: formData.title,
         excerpt: formData.excerpt,
         content: formData.content,
@@ -246,8 +221,9 @@ export default function EditRaisePage() {
         router.refresh()
         router.push(`/raises/${slug}`)
       }, 2000)
-    } catch (err: any) {
-      setError(err.message || 'Failed to repost')
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to repost'
+      setError(errorMsg)
       setIsReposting(false)
     }
   }
@@ -299,7 +275,7 @@ export default function EditRaisePage() {
                   {post.adminFeedback}
                 </p>
                 <p className="mt-3 text-xs text-orange-600/80 dark:text-orange-400/80">
-                  Make the requested changes below and click <strong>"Save & Repost"</strong> to publish your round again.
+                  Make the requested changes below and click <strong>&quot;Save &amp; Repost&quot;</strong> to publish your round again.
                 </p>
               </div>
             </div>

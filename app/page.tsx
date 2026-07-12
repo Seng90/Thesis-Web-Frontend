@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import Link from 'next/link'
@@ -9,7 +10,7 @@ import type { Company, InvestmentFull } from '@/lib/types'
 import { useAuth } from '@/lib/auth'
 import CompanyCard from '@/components/cards/CompanyCard'
 import { formatDate } from '@/lib/utils'
-import { Building2, Users, TrendingUp, Banknote, Search, Rocket, ArrowRight, Factory, Briefcase, Stethoscope, ShoppingCart, GraduationCap, MonitorSmartphone, DollarSign, Calendar, BriefcaseBusiness, Activity } from 'lucide-react'
+import { Building2, Users, TrendingUp, Banknote, Search, Rocket, ArrowRight, BriefcaseBusiness } from 'lucide-react'
 
 export default function Home() {
   const router = useRouter()
