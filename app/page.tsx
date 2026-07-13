@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import Link from 'next/link'
@@ -9,6 +8,7 @@ import { fetchRecentInvestments } from '@/features/investors/api/investorsApi'
 import type { Company, InvestmentFull } from '@/lib/types'
 import { useAuth } from '@/lib/auth'
 import CompanyCard from '@/components/cards/CompanyCard'
+import CompanyLogo from '@/components/ui/CompanyLogo'
 import { formatDate } from '@/lib/utils'
 import { Building2, Users, TrendingUp, Banknote, Search, Rocket, ArrowRight, BriefcaseBusiness } from 'lucide-react'
 
@@ -263,13 +263,7 @@ export default function Home() {
               <div key={inv.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start md:items-center bg-white dark:bg-surface-800 p-4 md:px-6 md:py-4 rounded-2xl border border-slate-200/60 dark:border-surface-700 shadow-sm hover:shadow-md transition-all group">
                 {/* Company */}
                 <div className="col-span-2 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-surface-700 flex items-center justify-center overflow-hidden shrink-0">
-                    {inv.company?.logoUrl ? (
-                      <img src={inv.company.logoUrl} alt={inv.company.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Building2 className="w-5 h-5 text-slate-400" />
-                    )}
-                  </div>
+                  <CompanyLogo logoUrl={inv.company?.logoUrl} name={inv.company?.name || 'Unknown Company'} size="sm" />
                   <div>
                     <Link href={`/companies/${inv.companyId}`} className="font-semibold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-1">
                       {inv.company?.name || 'Unknown Company'}
