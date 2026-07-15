@@ -14,7 +14,7 @@ export async function fetchInvestor(id: string): Promise<InvestorWithPortfolio |
   return mapInvestorWithPortfolio(data)
 }
 
-export async function fetchInvestments(): Promise<InvestmentWithDetails[]> {
+export async function fetchInvestments(): Promise<InvestmentFull[]> {
   try {
     const res = await fetch(`${API_BASE}/user/investments`, { next: { revalidate: 60 } })
     if (!res.ok) {
@@ -25,7 +25,7 @@ export async function fetchInvestments(): Promise<InvestmentWithDetails[]> {
     if (!text) return []
     const data = JSON.parse(text)
     if (!Array.isArray(data)) return []
-    return data.map(mapInvestmentWithDetails)
+    return data.map(mapInvestmentFull)
   } catch (e) {
     console.error('[fetchInvestments] Error parsing/fetching investments', e)
     return []

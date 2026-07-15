@@ -141,12 +141,18 @@ export default function DashboardClient({ stats, fundingOverTime, sectorDistribu
                     {i + 1}
                   </td>
                   <td className="py-4 pr-4">
-                    <Link
-                      href={`/investors/${inv.id}`}
-                      className="font-semibold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400"
-                    >
-                      {inv.name}
-                    </Link>
+                    {inv.id.startsWith('inv') ? (
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {inv.name}
+                      </span>
+                    ) : (
+                      <Link
+                        href={`/investors/${inv.id}`}
+                        className="font-semibold text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400"
+                      >
+                        {inv.name}
+                      </Link>
+                    )}
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                       {inv.location}
                     </p>
