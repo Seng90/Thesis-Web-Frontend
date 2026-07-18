@@ -1,9 +1,10 @@
 'use client'
 
-import { use } from 'react'
+import { useParams } from 'next/navigation'
 import EditCompanyContainer from '@/features/companies/components/EditCompanyContainer'
 
-export default function EditCompanyPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: companyId } = use(params)
+export default function EditCompanyPage() {
+  const params = useParams()
+  const companyId = params.id as string
   return <EditCompanyContainer companyId={companyId} />
 }
