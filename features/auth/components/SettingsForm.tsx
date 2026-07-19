@@ -2,7 +2,7 @@
 'use client'
 
 import Link from 'next/link'
-import { User, Lock, Bell, Palette, UploadCloud, Loader2, Save, CheckCircle2, AlertCircle, LayoutList, Building2 } from 'lucide-react'
+import { User, Lock, Bell, Palette, UploadCloud, Loader2, Save, CheckCircle2, AlertCircle, LayoutList, Building2, History } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { hasPermission } from '@/lib/auth'
 import type { Tab } from '../hooks/useSettings'
@@ -107,6 +107,12 @@ export default function SettingsForm({
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-white/5"
                   >
                     <Building2 className="w-4 h-4" /> My Companies
+                  </Link>
+                  <Link
+                    href="/dashboard/my-revisions"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-surface-600 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-white/5"
+                  >
+                    <History className="w-4 h-4" /> Revision History
                   </Link>
                 </>
               )}
