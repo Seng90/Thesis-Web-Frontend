@@ -98,7 +98,7 @@ export function useSettings() {
     uploadData.append('file', file)
 
     try {
-      const res = await fetch(`${API_BASE}/upload`, {
+      const res = await fetch(`${API_BASE}/upload/member-avatar`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: uploadData,

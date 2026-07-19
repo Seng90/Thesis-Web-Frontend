@@ -1,4 +1,8 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+let defaultApiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+if (typeof window !== 'undefined' && defaultApiBase.includes('localhost') && window.location.hostname !== 'localhost') {
+  defaultApiBase = defaultApiBase.replace('localhost', window.location.hostname)
+}
+export const API_BASE = defaultApiBase
 
 export async function apiFetch<T>(path: string): Promise<T | null> {
   try {
