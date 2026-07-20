@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { getInitials, getNameColor } from '@/lib/utils'
+import { getInitials, getNameColor, getImageUrl } from '@/lib/utils'
 import { ExternalLink, ArrowRight } from 'lucide-react'
 import type { FounderWithRole } from '@/lib/types'
 
@@ -27,8 +27,12 @@ export default function FounderCard({ founder }: { founder: FounderWithRole }) {
         onClick={() => setShowPopup(!showPopup)}
         className="w-full text-left flex gap-4 p-4 rounded-2xl border border-slate-100 dark:border-surface-700 bg-slate-50/50 dark:bg-surface-900/50 hover:border-indigo-200 dark:hover:border-indigo-500/30 hover:shadow-md transition-all cursor-pointer group"
       >
-        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getNameColor(founder.nameEn)} flex items-center justify-center shrink-0`}>
-          <span className="text-white font-bold text-sm">{getInitials(founder.nameEn)}</span>
+        <div className={`w-12 h-12 rounded-full shrink-0 flex items-center justify-center overflow-hidden ${!founder.avatarUrl ? `bg-gradient-to-br ${getNameColor(founder.nameEn)}` : 'bg-slate-100 border border-slate-200'}`}>
+          {founder.avatarUrl ? (
+            <img src={getImageUrl(founder.avatarUrl)} alt={founder.nameEn} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-white font-bold text-sm">{getInitials(founder.nameEn)}</span>
+          )}
         </div>
         <div>
           <h3 className="font-semibold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{displayName}</h3>
@@ -41,8 +45,12 @@ export default function FounderCard({ founder }: { founder: FounderWithRole }) {
       {showPopup && (
         <div className="absolute z-50 top-full left-0 mt-2 w-72 bg-white dark:bg-surface-800 rounded-2xl border border-slate-200 dark:border-surface-700 shadow-xl p-5 animate-fade-in">
           <div className="flex items-center gap-3 mb-4">
-            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getNameColor(founder.nameEn)} flex items-center justify-center shrink-0`}>
-              <span className="text-white font-bold text-lg">{getInitials(founder.nameEn)}</span>
+            <div className={`w-14 h-14 rounded-xl shrink-0 flex items-center justify-center overflow-hidden ${!founder.avatarUrl ? `bg-gradient-to-br ${getNameColor(founder.nameEn)}` : 'bg-slate-100 border border-slate-200'}`}>
+              {founder.avatarUrl ? (
+                <img src={getImageUrl(founder.avatarUrl)} alt={founder.nameEn} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-white font-bold text-lg">{getInitials(founder.nameEn)}</span>
+              )}
             </div>
             <div>
               <h4 className="font-bold text-slate-900 dark:text-white text-lg">{displayName}</h4>

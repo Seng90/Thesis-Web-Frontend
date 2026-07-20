@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Globe, Mail } from 'lucide-react'
 import type { Investor } from '@/lib/types'
-import { getInitials, getNameColor } from '@/lib/utils'
+import { getInitials, getNameColor, getImageUrl } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 
 interface InvestorCardProps {
@@ -18,9 +18,13 @@ export default function InvestorCard({ investor }: InvestorCardProps) {
         {/* Header */}
         <div className="flex items-start gap-4">
           <div
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${avatarColor} text-sm font-bold text-white shadow-sm`}
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl overflow-hidden shadow-sm ${!investor.logoUrl ? `bg-gradient-to-br ${avatarColor} text-white font-bold text-sm` : 'bg-white border border-slate-200/60 p-1.5'}`}
           >
-            {initials}
+            {investor.logoUrl ? (
+              <img src={getImageUrl(investor.logoUrl)} alt={investor.name} className="max-w-full max-h-full object-contain" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <h3 className="truncate text-lg font-bold text-slate-900 dark:text-white transition-colors duration-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
