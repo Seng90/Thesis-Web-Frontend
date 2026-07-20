@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { fetchFounder, fetchFounderCompanies } from '@/features/founders/api/foundersApi'
-import { getInitials, getNameColor } from '@/lib/utils'
+import { getInitials, getNameColor, getImageUrl } from '@/lib/utils'
 import { ChevronLeft, ExternalLink, Briefcase } from 'lucide-react'
 import CompanyLogo from '@/components/ui/CompanyLogo'
 import type { Metadata } from 'next'
@@ -33,8 +33,12 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
       {/* Profile Header */}
       <div className="bg-white dark:bg-surface-800 rounded-3xl border border-slate-200/60 dark:border-surface-700 shadow-sm p-8 mb-8">
         <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-          <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${getNameColor(founder.nameEn)} flex items-center justify-center shrink-0 shadow-md`}>
-            <span className="text-white font-bold text-2xl">{getInitials(founder.nameEn)}</span>
+          <div className={`w-20 h-20 rounded-2xl shrink-0 shadow-md flex items-center justify-center overflow-hidden ${!founder.avatarUrl ? `bg-gradient-to-br ${getNameColor(founder.nameEn)}` : 'bg-slate-100 border border-slate-200'}`}>
+            {founder.avatarUrl ? (
+              <img src={getImageUrl(founder.avatarUrl)} alt={founder.nameEn} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white font-bold text-2xl">{getInitials(founder.nameEn)}</span>
+            )}
           </div>
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{displayName}</h1>

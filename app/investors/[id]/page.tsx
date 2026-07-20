@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { fetchInvestor } from '@/features/investors/api/investorsApi'
-import { getInitials, getNameColor, formatDate, formatCurrency } from '@/lib/utils'
+import { getInitials, getNameColor, formatDate, formatCurrency, getImageUrl } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import CompanyCard from '@/components/cards/CompanyCard'
 import { Globe, Mail, ChevronLeft, Briefcase, ExternalLink } from 'lucide-react'
@@ -60,8 +60,12 @@ export default async function InvestorDetailPage({
       <div className="bg-white dark:bg-surface-800 rounded-3xl border border-slate-200/60 dark:border-surface-700 shadow-sm p-8 mb-8">
         <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
           {/* Avatar */}
-          <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br ${getNameColor(investor.name)} flex items-center justify-center shrink-0 shadow-md`}>
-            <span className="text-white font-bold text-3xl sm:text-4xl">{getInitials(investor.name)}</span>
+          <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-2xl shrink-0 shadow-md flex items-center justify-center overflow-hidden ${!investor.logoUrl ? `bg-gradient-to-br ${getNameColor(investor.name)}` : 'bg-white border border-slate-200/60 p-2'}`}>
+            {investor.logoUrl ? (
+              <img src={getImageUrl(investor.logoUrl)} alt={investor.name} className="max-w-full max-h-full object-contain" />
+            ) : (
+              <span className="text-white font-bold text-3xl sm:text-4xl">{getInitials(investor.name)}</span>
+            )}
           </div>
           
           {/* Main Info */}
