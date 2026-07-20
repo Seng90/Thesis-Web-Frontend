@@ -128,22 +128,33 @@ export default async function FounderProfilePage({ params }: { params: Promise<{
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Companies Founded</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {companies.map(company => (
-                <Link key={company.id} href={`/companies/${company.id}`} className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200/60 dark:border-surface-700 bg-white dark:bg-surface-800 hover:border-indigo-200 dark:hover:border-indigo-500/30 hover:shadow-md transition-all group">
-                  <CompanyLogo logoUrl={company.logoUrl} name={company.name} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">{company.name}</h3>
-                      {company.founderRole && (
-                        <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400 border border-purple-200/50 dark:border-purple-500/20">
-                          {company.founderRole}
-                        </span>
-                      )}
+              {companies.map(company => {
+                const isApproved = company.status === 'Approved'
+                const Wrapper = isApproved ? Link : 'div'
+                const wrapperProps = isApproved ? { href: `/companies/${company.id}` } : {}
+                
+                return (
+                  <Wrapper key={company.id} {...wrapperProps as any} className={`flex items-center gap-4 p-4 rounded-2xl border border-slate-200/60 dark:border-surface-700 bg-white dark:bg-surface-800 transition-all ${isApproved ? 'hover:border-indigo-200 dark:hover:border-indigo-500/30 hover:shadow-md group cursor-pointer' : 'opacity-75 cursor-default'}`}>
+                    <CompanyLogo logoUrl={company.logoUrl} name={company.name} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className={`font-semibold text-slate-900 dark:text-white truncate ${isApproved ? 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors' : ''}`}>{company.name}</h3>
+                        {company.founderRole && (
+                          <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400 border border-purple-200/50 dark:border-purple-500/20">
+                            {company.founderRole}
+                          </span>
+                        )}
+                        {!isApproved && (
+                          <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 dark:bg-surface-700 dark:text-slate-400 border border-slate-200/50 dark:border-surface-600">
+                            {company.status}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{company.industry} · {company.location}</p>
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{company.industry} · {company.location}</p>
-                  </div>
-                </Link>
-              ))}
+                  </Wrapper>
+                )
+              })}
             </div>
           </section>
         )}
