@@ -7,10 +7,9 @@ import type { Company, CompanyWithRelations } from '@/lib/types'
 import { Building2, Banknote, Users, Calendar, MapPin, ArrowRightLeft, LayoutGrid } from 'lucide-react'
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend,
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from 'recharts'
 import CompanyLogo from '@/components/ui/CompanyLogo'
-import { useChartDimensions } from '@/lib/useChartDimensions'
 
 interface CompareToolProps {
   companies: Company[]
@@ -30,8 +29,6 @@ const formatCurrency = (amount: number, currency = 'USD') => {
 export default function CompareTool({ companies }: CompareToolProps) {
   const [companyAId, setCompanyAId] = useState<string>('')
   const [companyBId, setCompanyBId] = useState<string>('')
-  const [radarContainerRef, radarSize] = useChartDimensions()
-  const [barContainerRef, barSize] = useChartDimensions()
 
   const [companyAData, setCompanyAData] = useState<CompanyWithRelations | null>(null)
   const [companyBData, setCompanyBData] = useState<CompanyWithRelations | null>(null)
@@ -282,9 +279,9 @@ export default function CompareTool({ companies }: CompareToolProps) {
             {/* Overall Comparison (Radar) */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Overall Comparison (Relative Score)</h4>
-              <div ref={radarContainerRef} className="h-[300px] w-full">
-                {radarSize.width > 0 && (
-                  <RadarChart cx="50%" cy="50%" outerRadius="70%" width={radarSize.width} height={radarSize.height} data={radarData}>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                     <PolarGrid stroke="#cbd5e1" strokeDasharray="3 3" />
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
                     <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
@@ -293,7 +290,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
                     <Radar name={companyAData.name} dataKey={companyAData.name} stroke="#6366f1" fill="#6366f1" fillOpacity={0.5} />
                     <Radar name={companyBData.name} dataKey={companyBData.name} stroke="#10b981" fill="#10b981" fillOpacity={0.5} />
                   </RadarChart>
-                )}
+                </ResponsiveContainer>
               </div>
             </div>
 
@@ -301,9 +298,9 @@ export default function CompareTool({ companies }: CompareToolProps) {
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
               <h4 className="text-center font-bold text-slate-800 dark:text-slate-200 mb-6">Funding by Year ($M)</h4>
               {fundingByYearData.length > 0 ? (
-                <div ref={barContainerRef} className="h-[300px] w-full">
-                  {barSize.width > 0 && (
-                    <BarChart width={barSize.width} height={barSize.height} data={fundingByYearData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={fundingByYearData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dx={-10} tickFormatter={(val) => `$${val}M`} />
@@ -316,7 +313,7 @@ export default function CompareTool({ companies }: CompareToolProps) {
                       <Bar dataKey={companyAData.name} fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={40} />
                       <Bar dataKey={companyBData.name} fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
                     </BarChart>
-                  )}
+                  </ResponsiveContainer>
                 </div>
               ) : (
                 <div className="h-[300px] flex items-center justify-center text-slate-400 dark:text-slate-500">
@@ -361,7 +358,7 @@ function CompanySearchDropdown({
   selectedId,
   onSelect,
   disabledId,
-  placeholder = "Select a company..."
+  placeholder = "Search companies by name..."
 }: {
   companies: Company[]
   selectedId: string
@@ -377,77 +374,92 @@ function CompanySearchDropdown({
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false)
+        // Reset query to selected company name if closed without selection
+        const selectedCompany = companies.find(c => c.id === selectedId)
+        if (selectedCompany) {
+          setQuery(selectedCompany.name)
+        } else {
+          setQuery('')
+        }
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [selectedId, companies])
+
+  // Sync query with selected company initially or when it changes externally
+  useEffect(() => {
+    const selectedCompany = companies.find(c => c.id === selectedId)
+    if (selectedCompany && !isOpen) {
+      setQuery(selectedCompany.name)
+    }
+  }, [selectedId, companies, isOpen])
 
   const filteredCompanies = companies.filter(c => 
     c.name.toLowerCase().includes(query.toLowerCase())
   )
 
-  const selectedCompany = companies.find(c => c.id === selectedId)
-
   return (
     <div className="relative" ref={dropdownRef}>
-      <div 
-        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3.5 pr-10 focus-within:ring-2 focus-within:ring-indigo-500 font-medium transition-all cursor-pointer flex items-center justify-between"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className={selectedCompany ? "" : "text-slate-500"}>
-          {selectedCompany ? selectedCompany.name : placeholder}
-        </span>
+      <div className="relative w-full">
+        <input
+          type="text"
+          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-3.5 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium transition-all"
+          placeholder={placeholder}
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            setIsOpen(true)
+            if (selectedId && e.target.value === '') {
+              onSelect('') // Clear selection if user clears the input
+            }
+          }}
+          onClick={() => {
+            setIsOpen(true)
+            // Optional: auto-select text when clicked so they can just start typing to replace
+            // e.currentTarget.select()
+          }}
+          onFocus={() => setIsOpen(true)}
+        />
         <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
           <Building2 className="w-5 h-5" />
         </div>
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto">
-          <div className="sticky top-0 p-2 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-            <input
-              type="text"
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
-              placeholder="Search companies..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-          <div className="py-1">
-            {filteredCompanies.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-slate-500 text-center">No companies found</div>
-            ) : (
-              filteredCompanies.map(c => {
-                const isDisabled = c.id === disabledId
-                return (
-                  <div
-                    key={c.id}
-                    className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
-                      isDisabled 
-                        ? 'text-slate-400 dark:text-slate-600 cursor-not-allowed bg-slate-50 dark:bg-slate-900/50' 
-                        : c.id === selectedId
-                          ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (!isDisabled) {
-                        onSelect(c.id)
-                        setIsOpen(false)
-                        setQuery('')
-                      }
-                    }}
-                  >
-                    {c.name}
-                  </div>
-                )
-              })
-            )}
-          </div>
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-60 overflow-y-auto py-1">
+          {filteredCompanies.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-slate-500 text-center">No companies found</div>
+          ) : (
+            filteredCompanies.map(c => {
+              const isDisabled = c.id === disabledId
+              return (
+                <div
+                  key={c.id}
+                  className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                    isDisabled 
+                      ? 'text-slate-400 dark:text-slate-600 cursor-not-allowed bg-slate-50 dark:bg-slate-900/50' 
+                      : c.id === selectedId
+                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-medium'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (!isDisabled) {
+                      onSelect(c.id)
+                      setQuery(c.name)
+                      setIsOpen(false)
+                    }
+                  }}
+                >
+                  {c.name}
+                </div>
+              )
+            })
+          )}
         </div>
       )}
     </div>
   )
 }
+

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth, hasPermission } from '@/lib/auth'
+import { getImageUrl } from '@/lib/utils'
 import { fetchMyPosts, cancelFundraisingPost } from '@/features/raises/api/raisesApi'
 import type { FundraisingPost } from '@/lib/types'
 import { AlertCircle, Edit, XCircle, ArrowLeft, Loader2, Calendar } from 'lucide-react'
@@ -100,7 +101,7 @@ export default function MyPostsPage() {
                 {/* Image */}
                 <div className="w-full md:w-48 h-32 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden border border-slate-200 dark:border-slate-700">
                   {post.coverUrl ? (
-                    <img src={post.coverUrl} alt={post.title} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(post.coverUrl)} alt={post.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
                   )}

@@ -12,7 +12,7 @@ interface SettingsFormProps {
   activeTab: Tab
   setActiveTab: (tab: Tab) => void
   isFetchingProfile: boolean
-  profileData: { username: string; email: string; avatarUrl: string; role: string; packageId: string; status: string }
+  profileData: { username: string; email: string; avatarUrl: string; role: string; packageId: string; status: string; hasPassword?: boolean }
   isSavingProfile: boolean
   isUploadingAvatar: boolean
   profileMsg: { type: string; text: string }
@@ -257,7 +257,18 @@ export default function SettingsForm({
                     <p className="mt-1 text-sm text-surface-500 dark:text-surface-400">Ensure your account is using a long, random password to stay secure.</p>
                   </div>
                   
-                  <form onSubmit={handleSavePassword} className="p-6 space-y-6">
+                  {profileData.hasPassword === false ? (
+                    <div className="p-12 text-center">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-50 dark:bg-primary-500/10 mb-4">
+                        <Lock className="w-8 h-8 text-primary-500" />
+                      </div>
+                      <h3 className="text-lg font-medium text-surface-900 dark:text-white">Social Login Account</h3>
+                      <p className="mt-2 text-sm text-surface-500 dark:text-surface-400 max-w-sm mx-auto">
+                        You signed in using a social provider (like Google) and don't have a password set. You can continue logging in with your provider.
+                      </p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSavePassword} className="p-6 space-y-6">
                     <div className="space-y-5 max-w-md">
                       <div>
                         <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
@@ -325,6 +336,7 @@ export default function SettingsForm({
                       </button>
                     </div>
                   </form>
+                  )}
                 </div>
               )}
 

@@ -139,10 +139,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(async (username: string, email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await fetch(`${API_BASE}/members`, {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, role: 'user' }),
+        body: JSON.stringify({ username, email, password }),
       })
 
       if (!res.ok) {

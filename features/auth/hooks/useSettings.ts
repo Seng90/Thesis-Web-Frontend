@@ -17,7 +17,7 @@ export function useSettings() {
   const [isFetchingProfile, setIsFetchingProfile] = useState(true)
 
   // Profile Form State
-  const [profileData, setProfileData] = useState({ username: '', email: '', avatarUrl: '', role: '', packageId: '', status: '' })
+  const [profileData, setProfileData] = useState({ username: '', email: '', avatarUrl: '', role: '', packageId: '', status: '', hasPassword: true })
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const [profileMsg, setProfileMsg] = useState({ type: '', text: '' })
@@ -48,7 +48,8 @@ export function useSettings() {
             avatarUrl: data.avatarUrl || data.avatar_url || '',
             role: data.roles?.[0] || data.role || 'Member',
             packageId: data.packageId || 'Free Plan',
-            status: data.status || 'Active'
+            status: data.status || 'Active',
+            hasPassword: data.hasPassword ?? true
           })
           const updatedUserData: Partial<AuthUser> = {
             username: data.username,

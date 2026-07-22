@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth, hasPermission } from '@/lib/auth'
-import { Building2, Save, FileText, LayoutList, Target, Calendar, Clock, Tag, Link2, Mail, Loader2, ImagePlus, UploadCloud } from 'lucide-react'
+import { Building2, Save, FileText, LayoutList, Target, Calendar, Clock, Tag, Link2, Mail, Loader2, ImagePlus, UploadCloud, AlertCircle } from 'lucide-react'
+import { getImageUrl } from '@/lib/utils'
+import RoundTypeSelect from '@/components/raises/RoundTypeSelect'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
@@ -272,11 +274,17 @@ export default function PostRaisePage() {
                   type="text"
                   name="title"
                   required
+                  maxLength={255}
                   placeholder="e.g. Seed Round to expand across Southeast Asia"
                   value={formData.title}
                   onChange={handleChange}
                   className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
+                {formData.title.length >= 255 && (
+                  <p className="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3.5 w-3.5" /> ຂໍ້ຄວາມຍາວເກີນກຳນົດແລ້ວ (ສູງສຸດ 255 ຕົວອັກສອນ)
+                  </p>
+                )}
               </div>
 
               {/* Excerpt */}
@@ -288,11 +296,17 @@ export default function PostRaisePage() {
                   name="excerpt"
                   required
                   rows={2}
+                  maxLength={500}
                   placeholder="A brief 1-2 sentence summary of your round."
                   value={formData.excerpt}
                   onChange={handleChange}
                   className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
+                {formData.excerpt.length >= 500 && (
+                  <p className="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3.5 w-3.5" /> ຂໍ້ຄວາມຍາວເກີນກຳນົດແລ້ວ (ສູງສຸດ 500 ຕົວອັກສອນ)
+                  </p>
+                )}
               </div>
 
               {/* Content */}
@@ -304,11 +318,17 @@ export default function PostRaisePage() {
                   name="content"
                   required
                   rows={6}
+                  maxLength={10000}
                   placeholder="Tell investors why they should invest, your traction, and how you will use the funds."
                   value={formData.content}
                   onChange={handleChange}
                   className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
+                {formData.content.length >= 10000 && (
+                  <p className="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3.5 w-3.5" /> ຂໍ້ຄວາມຍາວເກີນກຳນົດແລ້ວ (ສູງສຸດ 10,000 ຕົວອັກສອນ)
+                  </p>
+                )}
               </div>
 
             </div>
@@ -329,20 +349,10 @@ export default function PostRaisePage() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Round Type
                 </label>
-                <select
-                  name="roundType"
-                  required
-                  value={formData.roundType}
-                  onChange={handleChange}
-                  className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                >
-                  <option value="Pre-seed">Pre-seed</option>
-                  <option value="Seed">Seed</option>
-                  <option value="Pre-Series A">Pre-Series A</option>
-                  <option value="Series A">Series A</option>
-                  <option value="Series B">Series B</option>
-                  <option value="Debt">Debt Financing</option>
-                </select>
+                <RoundTypeSelect 
+                  value={formData.roundType} 
+                  onChange={(val) => setFormData(prev => ({ ...prev, roundType: val }))} 
+                />
               </div>
 
               {/* Fundraising Schedule — Full Width */}
@@ -507,7 +517,7 @@ export default function PostRaisePage() {
                   {formData.coverUrl && (
                     <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={formData.coverUrl} alt="Preview" className="h-full w-full object-cover" />
+                      <img src={getImageUrl(formData.coverUrl)} alt="Preview" className="h-full w-full object-cover" />
                     </div>
                   )}
                   <div className="flex-1">
@@ -543,11 +553,17 @@ export default function PostRaisePage() {
                 <input
                   type="url"
                   name="pitchDeckUrl"
+                  maxLength={255}
                   placeholder="https://docsend.com/view/..."
                   value={formData.pitchDeckUrl}
                   onChange={handleChange}
                   className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
+                {formData.pitchDeckUrl.length >= 255 && (
+                  <p className="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3.5 w-3.5" /> URL ຍາວເກີນກຳນົດແລ້ວ (ສູງສຸດ 255 ຕົວອັກສອນ)
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -559,11 +575,17 @@ export default function PostRaisePage() {
                   <input
                     type="url"
                     name="websiteUrl"
+                    maxLength={255}
                     placeholder="https://yourcompany.la"
                     value={formData.websiteUrl}
                     onChange={handleChange}
                     className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
+                  {formData.websiteUrl.length >= 255 && (
+                    <p className="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                      <AlertCircle className="h-3.5 w-3.5" /> URL ຍາວເກີນກຳນົດແລ້ວ (ສູງສຸດ 255 ຕົວອັກສອນ)
+                    </p>
+                  )}
                 </div>
                 
                 {/* Contact Email */}
@@ -575,11 +597,17 @@ export default function PostRaisePage() {
                     type="email"
                     name="contactEmail"
                     required
+                    maxLength={255}
                     placeholder="founder@yourcompany.la"
                     value={formData.contactEmail}
                     onChange={handleChange}
                     className="block w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 py-3 text-slate-900 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
+                  {formData.contactEmail.length >= 255 && (
+                    <p className="mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                      <AlertCircle className="h-3.5 w-3.5" /> ອີເມວຍາວເກີນກຳນົດແລ້ວ (ສູງສຸດ 255 ຕົວອັກສອນ)
+                    </p>
+                  )}
                 </div>
               </div>
 

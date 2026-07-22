@@ -67,6 +67,41 @@ export default function CheckoutPage() {
     }
   }
 
+  const handleStripePayment = async () => {
+    if (!user) {
+      router.push('/login?redirect=/checkout/' + packageId)
+      return
+    }
+
+    setLoading(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const response = await fetch(`${apiUrl}/user/payments/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('investrack_token')}`
+        },
+        body: JSON.stringify({ memberId: user.id, packageId })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create Stripe session')
+      }
+
+      const data = await response.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error('No checkout URL returned')
+      }
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Something went wrong'
+      setError(errorMsg)
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
@@ -116,17 +151,28 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-12 flex items-center justify-center gap-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-          >
-            {loading ? 'Processing...' : `Pay & Upgrade`}
-            {!loading && <Check className="w-4 h-4" />}
-          </button>
+          <div className="space-y-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 flex items-center justify-center gap-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+            >
+              {loading ? 'Processing...' : `Pay & Upgrade (Mock)`}
+              {!loading && <Check className="w-4 h-4" />}
+            </button>
+            
+            <button
+              type="button"
+              onClick={handleStripePayment}
+              disabled={loading}
+              className="w-full h-12 flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 transition-colors"
+            >
+              {loading ? 'Processing...' : `Pay with Stripe`}
+            </button>
+          </div>
           
           <p className="text-center text-xs text-slate-400 mt-4">
-            This is a mock payment gateway. No real money will be charged.
+            You can use the mock button for testing without real charges, or use the Stripe button for real payment flow.
           </p>
         </form>
       </div>

@@ -2,6 +2,7 @@ import type { FundraisingPost } from '@/lib/types'
 import { Calendar, Target, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { getImageUrl } from '@/lib/utils'
 
 export default function RaiseCard({ post, priority = false }: { post: FundraisingPost; priority?: boolean }) {
   const isExpired = post.status === 'Expired' || new Date(post.deadline) < new Date()
@@ -13,7 +14,7 @@ export default function RaiseCard({ post, priority = false }: { post: Fundraisin
       <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
         {post.coverUrl ? (
           <Image
-            src={post.coverUrl}
+            src={getImageUrl(post.coverUrl)}
             alt={post.title}
             fill
             priority={priority}

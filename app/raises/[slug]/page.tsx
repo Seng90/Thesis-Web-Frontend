@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { getImageUrl } from '@/lib/utils'
 import PostReactions from '@/components/raises/PostReactions'
 import CommentSection from '@/components/raises/CommentSection'
 
@@ -53,7 +54,7 @@ export default async function FundraisingPostDetail({ params }: { params: Promis
         {post.coverUrl && (
           <div className="relative mb-8 w-full aspect-[16/7] overflow-hidden rounded-2xl shadow-sm bg-slate-100 dark:bg-slate-900">
             <Image
-              src={post.coverUrl}
+              src={getImageUrl(post.coverUrl)}
               alt={post.title}
               fill
               className="object-cover"
