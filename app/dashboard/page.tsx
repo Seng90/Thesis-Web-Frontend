@@ -1,5 +1,4 @@
 import DashboardClient from '@/components/dashboard/DashboardClient'
-import { fundingOverTimeData, sectorDistributionData, topInvestorsMock } from '@/lib/dashboard-mock'
 import { fetchStats } from '@/features/analytics/api/statsApi'
 import { fetchInvestments } from '@/features/investors/api/investorsApi'
 import PremiumGuard from '@/components/auth/PremiumGuard'
@@ -12,15 +11,15 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   let stats = {
-    totalFunding: 12.4, // Fallback mock in millions
-    companiesTracked: 45,
-    activeInvestors: 18,
-    fundingRounds: 24
+    totalFunding: 0,
+    companiesTracked: 0,
+    activeInvestors: 0,
+    fundingRounds: 0
   }
 
-  let topInvestors = topInvestorsMock
-  let fundingOverTime = fundingOverTimeData
-  let sectorDistribution = sectorDistributionData
+  let topInvestors: any[] = []
+  let fundingOverTime: any[] = []
+  let sectorDistribution: any[] = []
 
   try {
     const apiStats = await fetchStats()
