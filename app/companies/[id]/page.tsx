@@ -11,6 +11,7 @@ import TopInvestors from '@/components/analytics/TopInvestors'
 import { MapPin, Globe, Mail, Calendar, Users, TrendingUp, ChevronLeft, CheckCircle, Info, Star, Briefcase, Activity, FileText, Receipt, PieChart as PieChartIcon, Award } from 'lucide-react'
 import FounderCard from '@/components/cards/FounderCard'
 import ViewCounter from '@/components/ViewCounter'
+import AuthWall from '@/components/auth/AuthWall'
 import type { Metadata } from 'next'
 
 export async function generateMetadata({
@@ -325,7 +326,9 @@ export default async function CompanyDetailPage({
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Funding Over Time</h3>
               </div>
-              <FundingTimeChart investments={company.investments} />
+              <AuthWall>
+                <FundingTimeChart investments={company.investments} />
+              </AuthWall>
             </section>
 
             {/* Round Distribution */}
@@ -336,7 +339,9 @@ export default async function CompanyDetailPage({
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Round Distribution</h3>
               </div>
-              <RoundDistributionChart investments={company.investments} />
+              <AuthWall>
+                <RoundDistributionChart investments={company.investments} />
+              </AuthWall>
             </section>
             
             {/* Top Investors */}
@@ -347,7 +352,9 @@ export default async function CompanyDetailPage({
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Top Investors</h3>
               </div>
-              <TopInvestors investments={company.investments} />
+              <AuthWall>
+                <TopInvestors investments={company.investments} />
+              </AuthWall>
             </section>
 
             {/* Funding History Table */}
